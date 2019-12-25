@@ -12,6 +12,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: rgb(0, 0, 30);
 }
 
 div.grid {
@@ -21,14 +22,29 @@ div.grid {
   flex-wrap: wrap;
 }
 
+div.food {
+  background-color: pink;
+  border-radius: 100%;
+}
+
+div.wall {
+  background-color: blue;
+}
+
 div.grid-item {
   width: 15px;
   height: 15px;
-  border: 1px dashed black;
+  border: 1pt dashed rgb(200, 200, 200);
 }
 
 div.grid-item.player {
-  background-image: url('../assets/pika-sprite.png');
-  background-repeat: no-repeat;
-  background-size: contain;
+  background-color: rgb(255, 238, 0);
+  border: 1px solid black;
+  border-radius: 50%;
+}
+
+div.grid-item.red {
+  background-color: red;
+  border: 1px solid black;
+  border-radius: 80%;
 }
