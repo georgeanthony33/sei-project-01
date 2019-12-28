@@ -1,23 +1,25 @@
 function init() {
 
   //  dom variables
-  const startBtn = document.querySelector('.start')
   const grid = document.querySelector('.grid')
-  const squares = []
+  const startBtn = document.querySelector('.start')
+  const countdown = document.querySelector('.countdown')
 
   // game variables
+  const squares = []
   const width = 28
   const height = 31
-  let playerIndex = 686
-  let redIndex = (width * 12.5)
+  let playerIndex = 658
+  let yellowIndex = 407
+  let directionArray = [-28, 1, 28, -1, 27, -27]
   let score = 0
   let lives = 2
   let timerId1 = null
   let timerId2 = null
   let timerId3 = null
-  let countDownTime = 3
+  let countDownTime = 0
   let gameTime = 0
-  const speed = 1000
+  let gameSpeed = 300
 
   // loop as many times as width times the height to fill the grid
   Array(width * height).join('.').split('.').forEach(() => {
@@ -28,94 +30,84 @@ function init() {
     grid.appendChild(square)
   })
 
-  // add food class to squares
-  squares.forEach(square => square.classList.add('food'))
+  // create wall array
+  const walls = [
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
+    1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
+    1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1,
+    1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
+    1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
+    1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1,
+    1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1,
+    1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+    1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-  // build the top wall
-  for (let i = 0; i < width; i++) {
-    squares[i].classList.remove('food')
-    squares[i].classList.add('wall')
-  }
-  // bottom wall
-  for (let i = 840; i < width * height; i++) {
-    squares[i].classList.add('wall')
-  }
-  // left wall
-  for (let i = 0; i < 840; i = i + width) {
-    squares[i].classList.add('wall')
-  }
-  // right wall
-  for (let i = width - 1; i < width * height; i = i + width) {
-    squares[i].classList.add('wall')
-  }
-  // middle top wall
-  for (let i = (width / 2) - 1; i <= ((width / 2) - 1) + (5 * width); i = i + width) {
-    squares[i].classList.add('wall')
-  }
-  for (let i = width / 2; i <= (width / 2) + (5 * width); i = i + width) {
-    squares[i].classList.add('wall')
-  }
-  // top row of walls
-  for (let i = (width * 2) + 2; i <= (width * 2) + 5; i++) {
-    squares[i].classList.add('wall')
-  }
-  for (let i = (width * 3) + 2; i <= (width * 3) + 5; i++) {
-    squares[i].classList.add('wall')
-  }
-  for (let i = (width * 2) + 7; i <= (width * 2) + 11; i++) {
-    squares[i].classList.add('wall')
-  }
-  for (let i = (width * 3) + 7; i <= (width * 3) + 11; i++) {
-    squares[i].classList.add('wall')
-  }
-  
-  for (let i = (width * 3) - 3; i >= (width * 3) - 6; i--) {
-    squares[i].classList.add('wall')
-  }
-  for (let i = (width * 3) - 8; i >= (width * 3) - 12; i--) {
-    squares[i].classList.add('wall')
-  }
-  for (let i = (width * 4) - 3; i >= (width * 4) - 6; i--) {
-    squares[i].classList.add('wall')
-  }
-  for (let i = (width * 4) - 8; i >= (width * 4) - 12; i--) {
-    squares[i].classList.add('wall')
+  // loop through walls array to build walls
+  for (let i = 0; i < width * height; i++) {
+    if (walls[i] === 1) {
+      squares[i].classList.add('wall')
+    }
   }
 
-  // hole in side walls
-  squares[420].classList.remove('wall')
-  squares[420 + width - 1].classList.remove('wall')
+  // loop through walls array to place food
+  for (let i = 0; i < width * height; i++) {
+    if (walls[i] === 0) {
+      squares[i].classList.add('food')
+    }
+  }
 
-  // places player at the starting position when grid has finished building, stops player from crossing walls and only allows player to move once the game starts
+  // places player at the starting position when grid has finished building, stops player from crossing walls and adds to score if player eats food
   squares[playerIndex].classList.add('player')
   function handleKeyDown(e) {
     switch (e.keyCode) {
       case 39:
-        if (playerIndex === 420 + width - 1) {
+        if (playerIndex === 419) {
           squares[playerIndex].classList.remove('food')
-          if (squares[420].classList.contains('food')) {
-            score++
+          if (squares[392].classList.contains('food')) {
+            score += 10
           }
-          playerIndex = 420
+          playerIndex = 392
         } else if (!(squares[playerIndex + 1].classList.contains('wall'))) {
           squares[playerIndex].classList.remove('food')
           if (squares[playerIndex + 1].classList.contains('food')) {
-            score++
+            score += 10
           }
           playerIndex++
         }
         break
       case 37:
-        if (playerIndex === 420) {
+        if (playerIndex === 392) {
           squares[playerIndex].classList.remove('food')
-          if (squares[420 + width - 1].classList.contains('food')) {
-            score++
+          if (squares[419].classList.contains('food')) {
+            score += 10
           }
-          playerIndex = 420 + width - 1
+          playerIndex = 419
         } else if (!(squares[playerIndex - 1].classList.contains('wall'))) {
           squares[playerIndex].classList.remove('food')
           if (squares[playerIndex - 1].classList.contains('food')) {
-            score++
+            score += 10
           }
           playerIndex--
         }
@@ -124,7 +116,7 @@ function init() {
         if (!(squares[playerIndex + width].classList.contains('wall'))) {
           squares[playerIndex].classList.remove('food')
           if (squares[playerIndex + width].classList.contains('food')) {
-            score++
+            score += 10
           }
           playerIndex += width
         }
@@ -133,43 +125,73 @@ function init() {
         if (!(squares[playerIndex - width].classList.contains('wall'))) {
           squares[playerIndex].classList.remove('food')
           if (squares[playerIndex - width].classList.contains('food')) {
-            score++
+            score += 10
           }
           playerIndex -= width
         } 
         break
       default:
-        console.log('player shouldnt move')
     }
+    console.log(score)
     squares.forEach(square => square.classList.remove('player'))
     squares[playerIndex].classList.add('player')
   }
 
   // places red ghost at starting position
+
+  // squares[turqoiseIndex].classList.add('turqoise')
+  // let turqoiseDirection = directionArray [0]
+  // function turqoiseGhostMoves ()
+
   squares[redIndex].classList.add('red')
-  function redGhostMoves() {
-    const randomNumber = Math.floor(Math.random() * 4)
-    switch (randomNumber) {
-      case 0:
-        if (!(squares[redIndex + 1].classList.contains('wall'))) {
-          redIndex++
+  squares[redIndex].classList.add('right')
+
+  let redIndex = 322
+  let redDirection = directionArray[1]
+
+  function redGhostMoves () {
+    let directionArray = [-28, 1, 28, -1, 27, -27]
+    let whereToGo = []
+    if (!(squares[redIndex + redDirection]).classList.contains('wall')) {
+      directionArray = directionArray.filter(eachDirection => eachDirection !== -redDirection)
+      if (redIndex === 392) {
+        directionArray = directionArray.filter(eachDirection => eachDirection !== 1)
+        directionArray = directionArray.filter(eachDirection => eachDirection !== -1)
+      } else if (redIndex === 419) {
+        directionArray = directionArray.filter(eachDirection => eachDirection !== 1)
+        directionArray = directionArray.filter(eachDirection => eachDirection !== -1)
+      } else {
+        directionArray = directionArray.filter(eachDirection => eachDirection !== 27)
+        directionArray = directionArray.filter(eachDirection => eachDirection !== -27)
+      }
+      for (const eachDirection of directionArray) {
+        if (!(squares[redIndex + eachDirection].classList.contains('wall'))) {
+          whereToGo.push(eachDirection)
         }
-        break
-      case 1:
-        if (!(squares[redIndex - 1].classList.contains('wall'))) {
-          redIndex--
+      }
+    } else {
+      directionArray.pop()
+      directionArray.pop()
+      for (const eachDirection of directionArray) {
+        if (!(squares[redIndex + eachDirection].classList.contains('wall'))) {
+          whereToGo.push(eachDirection)
         }
-        break
-      case 2:
-        if (!(squares[redIndex + width].classList.contains('wall'))) {
-          redIndex += width
-        }
-        break
-      case 3:
-        if (!(squares[redIndex - width].classList.contains('wall'))) {
-          redIndex -= width
-        }
-        break
+      }
+    }
+    // console.log(whereToGo)
+    let randomNumber = Math.floor(Math.random() * whereToGo.length)
+    // squares.forEach(square => square.classList.remove(`${redDirection}`))
+    redDirection = parseFloat(whereToGo[randomNumber])
+    // squares.forEach(square => square.classList.add(`${redDirection}`))
+    redIndex = parseFloat(parseFloat(redIndex) + parseFloat(redDirection))
+    if (redIndex === 392) {
+      if (redDirection === -1) {
+        redDirection = 27
+      }
+    } else if (redIndex === 419) {
+      if (redDirection === 1) {
+        redDirection = -27
+      }
     }
     squares.forEach(square => square.classList.remove('red'))
     squares[redIndex].classList.add('red')
@@ -177,12 +199,11 @@ function init() {
 
   function checkDeath () {
     if (playerIndex === redIndex) {
-      // console.log('yes')
       clearInterval(timerId2)
-      playerIndex = 686
+      playerIndex = 658
       squares.forEach(square => square.classList.remove('player'))
       squares[playerIndex].classList.add('player')
-      redIndex = (width * 12.5)
+      redIndex = (width * 11.5)
       squares.forEach(square => square.classList.remove('red'))
       squares[redIndex].classList.add('red')
       window.removeEventListener('keydown', handleKeyDown)
@@ -196,10 +217,10 @@ function init() {
 
   function countDownTimer () {
     if (countDownTime >= 1) {
-      console.log(`The timer is on ${countDownTime}`)
+      countdown.innerHTML = countDownTime
       countDownTime--
     } else if (countDownTime === 0) {
-      console.log('GO!')
+      countdown.innerHTML = 'GO!'
       countDownTime--
     } else {
       clearInterval(timerId1)
@@ -208,16 +229,16 @@ function init() {
 
   function gameTimer () {
     if (countDownTime < 0) {
-      redGhostMoves()
+      redGhostMoves('red')
       window.addEventListener('keydown', handleKeyDown)
+      console.log(gameTime)
       gameTime++
-      // console.log(gameTime)
     }
   }
 
   function startTimers () {
     timerId1 = setInterval(countDownTimer, 1000)
-    timerId2 = setInterval(gameTimer, speed)
+    timerId2 = setInterval(gameTimer, gameSpeed)
     timerId3 = setInterval(checkDeath, 1)
   }
 
