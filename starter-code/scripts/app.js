@@ -143,10 +143,9 @@ function init() {
   // let turqoiseDirection = directionArray [0]
   // function turqoiseGhostMoves ()
 
+  let redIndex = 322
   squares[redIndex].classList.add('red')
   squares[redIndex].classList.add('right')
-
-  let redIndex = 322
   let redDirection = directionArray[1]
 
   function redGhostMoves () {
