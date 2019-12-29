@@ -53,3 +53,9 @@ div.grid-item.red {
   border: 1px solid black;
   border-radius: 80%;
 }
+
+div.grid-item.blue {
+  background-color: rgb(0, 225, 255);
+  border: 1px solid black;
+  border-radius: 80%;
+}

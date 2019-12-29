@@ -16,9 +16,9 @@ function init() {
   let timerId1 = null
   let timerId2 = null
   let timerId3 = null
-  let countDownTime = 0
+  let countDownTime = 3
   let gameTime = 0
-  let gameSpeed = 300
+  let gameSpeed = 200
 
   // loop as many times as width times the height to fill the grid
   Array(width * height).join('.').split('.').forEach(() => {
@@ -43,10 +43,10 @@ function init() {
     1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 4, 4, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 2, 2, 4, 4, 3, 3, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 4, 4, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 2, 2, 4, 4, 3, 3, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
@@ -138,66 +138,87 @@ function init() {
 
   // places red ghost at starting position
 
-  let redIndex = 322
-  let redDirection = directionArray[1]
-  squares[redIndex].classList.add('red')
-
-  function redGhostMoves () {
-    let directionArray = [-28, 1, 28, -1, 27, -27]
-    const whereToGo = []
-    if (!(squares[redIndex + redDirection]).classList.contains('wall')) {
-      directionArray = directionArray.filter(eachDirection => eachDirection !== -redDirection)
-      if (redIndex === 392) {
-        directionArray = directionArray.filter(eachDirection => eachDirection !== 1)
-        directionArray = directionArray.filter(eachDirection => eachDirection !== -1)
-      } else if (redIndex === 419) {
-        directionArray = directionArray.filter(eachDirection => eachDirection !== 1)
-        directionArray = directionArray.filter(eachDirection => eachDirection !== -1)
+  class Ghosts {
+    constructor(name, index, direction) {
+      this.name = name,
+      this.index = index,
+      this.direction = direction,
+      this.directionArray = [1, -1, 28, -28, 27, -27],
+      this.whereToGo = []
+    }
+    ghostMoves () {
+      const nextAlong = this.index + this.direction
+      this.directionArray = [1, -1, 28, -28, 27, -27]
+      this.whereToGo = []
+      if (walls[nextAlong] === 0) {
+        this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== ((-1) * (this.direction)))
+        if (this.index === 392) {
+          this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== 1)
+          this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== -1)
+        } else if (this.index === 419) {
+          this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== 1)
+          this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== -1)
+        } else {
+          this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== 27)
+          this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== -27)
+        }
+        for (const eachDirection of this.directionArray) {
+          const potentialPos = this.index + eachDirection
+          if (walls[potentialPos] === 0) {
+            this.whereToGo.push(eachDirection)
+          }
+        }
       } else {
-        directionArray = directionArray.filter(eachDirection => eachDirection !== 27)
-        directionArray = directionArray.filter(eachDirection => eachDirection !== -27)
-      }
-      for (const eachDirection of directionArray) {
-        if (!(squares[redIndex + eachDirection].classList.contains('wall'))) {
-          whereToGo.push(eachDirection)
+        this.directionArray.pop()
+        this.directionArray.pop()
+        for (const eachDirection of this.directionArray) {
+          const potentialPos = this.index + eachDirection
+          if (walls[potentialPos] === 0) {
+            this.whereToGo.push(eachDirection)
+          }
         }
       }
-    } else {
-      directionArray.pop()
-      directionArray.pop()
-      for (const eachDirection of directionArray) {
-        if (!(squares[redIndex + eachDirection].classList.contains('wall'))) {
-          whereToGo.push(eachDirection)
+      const randomNumber = Math.floor(Math.random() * this.whereToGo.length)
+      // squares.forEach(square => square.classList.remove(`${this.Direction}`))
+      this.direction = parseFloat(this.whereToGo[randomNumber])
+      // squares.forEach(square => square.classList.add(`${this.Direction}`))
+      this.index = parseFloat(parseFloat(this.index) + parseFloat(this.direction))
+      if (this.index === 392) {
+        if (this.direction === -1) {
+          this.direction = 27
+        }
+      } else if (this.index === 419) {
+        if (this.direction === 1) {
+          this.direction = -27
         }
       }
+      squares.forEach(square => square.classList.remove(this.name))
+      squares[this.index].classList.add(this.name)
     }
-    const randomNumber = Math.floor(Math.random() * whereToGo.length)
-    // squares.forEach(square => square.classList.remove(`${redDirection}`))
-    redDirection = parseFloat(whereToGo[randomNumber])
-    // squares.forEach(square => square.classList.add(`${redDirection}`))
-    redIndex = parseFloat(parseFloat(redIndex) + parseFloat(redDirection))
-    if (redIndex === 392) {
-      if (redDirection === -1) {
-        redDirection = 27
-      }
-    } else if (redIndex === 419) {
-      if (redDirection === 1) {
-        redDirection = -27
-      }
-    }
-    squares.forEach(square => square.classList.remove('red'))
-    squares[redIndex].classList.add('red')
   }
 
+  const redIndex = 322
+  squares[redIndex].classList.add('red')
+  const redGhost = new Ghosts('red', 322, 1)
+
+  // const blueIndex = 405
+  // squares[blueIndex].classList.add('blue')
+  // const blueGhost = new Ghosts('blue', 405, -28)
+
   function checkDeath () {
-    if (playerIndex === redIndex) {
+    if (playerIndex === redGhost.index
+      //  || playerIndex === blueGhost.index
+      ) {
       clearInterval(timerId2)
       playerIndex = 658
       squares.forEach(square => square.classList.remove('player'))
       squares[playerIndex].classList.add('player')
-      redIndex = (width * 11.5)
+      redGhost.index = 322
+      // blueGhost.index = 405
       squares.forEach(square => square.classList.remove('red'))
-      squares[redIndex].classList.add('red')
+      // squares.forEach(square => square.classList.remove('blue'))
+      squares[redGhost.index].classList.add('red')
+      // squares[blueGhost.index].classList.add('blue')
       window.removeEventListener('keydown', handleKeyDown)
       lives--
       console.log(lives)
@@ -222,7 +243,8 @@ function init() {
 
   function gameTimer () {
     if (countDownTime < 0) {
-      redGhostMoves()
+      redGhost.ghostMoves()
+      // blueGhost.ghostMoves()
       window.addEventListener('keydown', handleKeyDown)
       gameTime++
     }
@@ -231,7 +253,7 @@ function init() {
   function startTimers () {
     timerId1 = setInterval(countDownTimer, 1000)
     timerId2 = setInterval(gameTimer, gameSpeed)
-    // timerId3 = setInterval(checkDeath, 1)
+    timerId3 = setInterval(checkDeath, 1)
   }
 
   // event handlers
