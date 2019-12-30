@@ -1,8 +1,8 @@
 function init() {
 
   //  DOM VARIABLES
+  const levelDisplay = document.querySelector('h2#level')
   const grid = document.querySelector('.grid') // grab grid div
-  const startBtn = document.querySelector('button.start') // grab start button
   const countdown = document.querySelector('h2.countdown') // grab countdown display
   const scoreDisplay = document.querySelector('h2#current-score')
   const livesDisplay = document.querySelector('h2#lives-left')
@@ -19,9 +19,16 @@ function init() {
   let timerId2 = null
   let timerId3 = null
   let timerId4 = null
-  let countDownTime = 1 // countdown starts from 3 before game starts
-  let gameTime = 0 // gameTime begins after countdown and starts from 0
-  let gameSpeed = 250 // speed of ghost
+  let timerId5 = null
+  let countDownTime = 3 // countdown starts from 3 before game starts
+  // let gameTime = 0 // gameTime begins after countdown and starts from 0
+  let playerSpeed = 100
+  let ghostSpeed = 200
+
+  // SET INITIAL DOM VARIABLES
+  countdown.innerHTML = 'hit space'
+  livesDisplay.innerHTML = `${lives} lives left`
+  levelDisplay.innerHTML = 1
 
   // loop as many times as width times the height to fill the grid
   Array(width * height).join('.').split('.').forEach(() => { // create array with (width * height) empty elements ''
@@ -80,11 +87,11 @@ function init() {
   }
 
   // create Ghost class with properties and movement method
-  class Ghosts {
-    constructor(name, index, direction) {
+  class Characters {
+    constructor(name, index, currentDirection) {
       this.name = name, // colour of ghost
       this.index = index, // current position
-      this.direction = direction, // current direction
+      this.currentDirection = currentDirection, // current direction
       this.directionArray = [1, -1, 28, -28, 27, -27], // array of possible directions, to be filtered down
       this.whereToGo = [] // empty array to be filled with available directions
     }
@@ -92,31 +99,31 @@ function init() {
       // before anything happens, adjust the direction of ghost if it is about to pass through the hole in the wall, so that it is directed for the other side, as opposed to otherwise having a direction of +1 or -1
       if (wallsArray[this.index] === 2) {
         this.index++
-        this.direction = 1
+        this.currentDirection = 1
       } else if (wallsArray[this.index] === 3) {
         this.index--
-        this.direction = -1
+        this.currentDirection = -1
       } else if (wallsArray[this.index] === 4) {
         this.index -= 28
-        this.direction = -28
+        this.currentDirection = -28
       } else {
         if (this.index === 392) {
-          if (this.direction === -1) {
-            this.direction = 27
+          if (this.currentDirection === -1) {
+            this.currentDirection = 27
           }
         } else if (this.index === 419) {
-          if (this.direction === 1) {
-            this.direction = -27
+          if (this.currentDirection === 1) {
+            this.currentDirection = -27
           }
         }
-        // nextAlong is the next position the ghost would be in if it follows same direction
-        const nextAlong = this.index + this.direction
+        // nextAlong is the next position the ghost would be in if it follows same Direction
+        const nextAlong = this.index + this.currentDirection
         this.directionArray = [1, -1, 28, -28, 27, -27]
         this.whereToGo = []
         if (wallsArray[nextAlong] === 0) { // if no wall in same direction ghost is already going
           // remove opposite direction from options
-          this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== ((-1) * (this.direction)))
-          if (this.index === 392 && this.direction === 27) { // if at hole in wall, ghost has to skip to either side
+          this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== ((-1) * (this.currentDirection)))
+          if (this.index === 392 && this.currentDirection === 27) { // if at hole in wall, ghost has to skip to either side
             this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== 1)
           } else if (this.index === 419 && this.direction === -27) { // if at hole in wall, ghost has to skip to either side
             this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== -1)
@@ -144,11 +151,11 @@ function init() {
         const randomNumber = Math.floor(Math.random() * this.whereToGo.length)
   
         // squares.forEach(square => square.classList.remove(`${this.Direction}`))
-        this.direction = this.whereToGo[randomNumber] // choose direction from array based off random number
+        this.currentDirection = this.whereToGo[randomNumber] // choose direction from array based off random number
         // squares.forEach(square => square.classList.add(`${this.Direction}`))
         
         // update next ghost position by adding direction to current position
-        this.index = this.index + this.direction
+        this.index = this.index + this.currentDirection
       }
       squares.forEach(square => square.classList.remove(this.name))
       squares[this.index].classList.add(this.name) // move ghost along to updated position
@@ -156,75 +163,79 @@ function init() {
     chaseAggresive () {
       this.ghostMovementRules()
     }
-    playerMove(e) { // function triggers on any key being pushed, stops player from crossing walls and adds to score if player eats food
+  }
+
+  class Player extends Characters {
+    constructor(name, index, currentDirection, proposedDirection) {
+      super(name, index, currentDirection)
+      this.proposedDirection = proposedDirection
+    }
+    automaticMovement () {
+      switch (this.index) {
+        case 392:
+          switch (this.proposedDirection) {
+            case -1:
+              this.proposedDirection = 27
+              break
+            case -27:
+              this.proposedDirection = 1
+              break
+          }
+          break
+        case 419:
+          switch (this.proposedDirection) {
+            case 1:
+              this.proposedDirection = -27
+              break
+            case 27:
+              this.proposedDirection = -1
+              break
+          }
+          break
+      }
+      const proposedPos = this.index + this.proposedDirection
+      const predictedPos = this.index + this.currentDirection
+      if (wallsArray[proposedPos] === 0) {
+        this.currentDirection = this.proposedDirection
+      } else if (wallsArray[predictedPos] === 0) {
+        this.currentDirection = this.currentDirection
+      } else {
+        this.currentDirection = 0
+      }
+      this.index += this.currentDirection
+      if (squares[this.index].classList.contains('food')) {
+        squares[this.index].classList.remove('food')
+        score += 10
+      }
+      squares.forEach(square => square.classList.remove(this.name))
+      squares[this.index].classList.add(this.name)
+      scoreDisplay.innerHTML = score
+    }
+    handleKeyDown(e) {
       switch (e.keyCode) {
         case 39: // right arrow
-          if (pacMan.index === 419) {
-            squares[pacMan.index].classList.remove('food')
-            if (squares[392].classList.contains('food')) {
-              score += 10
-            }
-            pacMan.index = 392
-            pacMan.direction = 1
-          } else if (!(squares[pacMan.index + 1].classList.contains('wall'))) { // check if next square is wall
-            squares[pacMan.index].classList.remove('food')
-            if (squares[pacMan.index + 1].classList.contains('food')) {
-              score += 10 // check if next square has food - if so, add 10 to score
-            }
-            pacMan.index++
-            pacMan.direction = 1
-          }
+          pacMan.proposedDirection = 1
           break
         case 37: // left arrow
-          if (pacMan.index === 392) {
-            squares[pacMan.index].classList.remove('food')
-            if (squares[419].classList.contains('food')) {
-              score += 10
-            }
-            pacMan.index = 419
-            pacMan.direction = -1
-          } else if (!(squares[pacMan.index - 1].classList.contains('wall'))) {
-            squares[pacMan.index].classList.remove('food')
-            if (squares[pacMan.index - 1].classList.contains('food')) {
-              score += 10
-            }
-            pacMan.index--
-            pacMan.direction = -1
-          }
+          pacMan.proposedDirection = -1
           break
         case 40: // down arrow
-          if (!(squares[pacMan.index + width].classList.contains('wall'))) {
-            squares[pacMan.index].classList.remove('food')
-            if (squares[pacMan.index + width].classList.contains('food')) {
-              score += 10
-            }
-            pacMan.index += width
-            pacMan.direction = width
-          }
+          pacMan.proposedDirection = width
           break
         case 38: // up arrow
-          if (!(squares[pacMan.index - width].classList.contains('wall'))) {
-            squares[pacMan.index].classList.remove('food')
-            if (squares[pacMan.index - width].classList.contains('food')) {
-              score += 10
-            }
-            pacMan.index -= width
-            pacMan.direction = -width
-          } 
+          pacMan.proposedDirection = -width
       }
-      scoreDisplay.innerHTML = score
-      squares.forEach(square => square.classList.remove('player'))
-      squares[pacMan.index].classList.add('player') // move pacman along to updated position
     }
   }
 
-  const pacMan = new Ghosts('pacman', 658, -1)
-  squares[pacMan.index].classList.add('player') // put pacman in starting position
 
-  const redGhost = new Ghosts('red', 322, 1)
+  const pacMan = new Player('pacman', 658, -1, -1)
+  squares[pacMan.index].classList.add('pacman') // put pacman in starting position
+
+  const redGhost = new Characters('red', 322, 1)
   squares[redGhost.index].classList.add('red')
 
-  const blueGhost = new Ghosts('blue', 404, 1)
+  const blueGhost = new Characters('blue', 404, 1)
   squares[blueGhost.index].classList.add('blue')
 
   function checkDeath () {
@@ -232,25 +243,30 @@ function init() {
       clearInterval(timerId2)
       clearInterval(timerId3)
       clearInterval(timerId4)
-      window.removeEventListener('keydown', pacMan.playerMove)
-      squares.forEach(square => square.classList.remove('player'))
+      clearInterval(timerId5)
+      window.removeEventListener('keydown', pacMan.handleKeyDown)
+      squares.forEach(square => square.classList.remove('pacman'))
       squares.forEach(square => square.classList.remove('red'))
       squares.forEach(square => square.classList.remove('blue'))
       pacMan.index = 658
+      pacMan.currentDirection = -1
+      pacMan.proposedDirection = -1
       redGhost.index = 322
+      redGhost.currentDirection = 1
       blueGhost.index = 405
-      squares[pacMan.index].classList.add('player')
+      blueGhost.currentDirection = 1
+      squares[pacMan.index].classList.add('pacman')
       squares[redGhost.index].classList.add('red')
       squares[blueGhost.index].classList.add('blue')
       lives--
       if (lives >= 0) {
         countDownTime = 3
-        gameTime = 0
-        livesDisplay.innerHTML = lives
+        // gameTime = 0
+        livesDisplay.innerHTML = `${lives} lives left`
         startTimers()
       } else {
-        livesDisplay.innerHTML = 0
-        alert('GAME OVER')
+        livesDisplay.innerHTML = null
+        countdown.innerHTML = 'GAME OVER'
       }
     }
   }
@@ -259,28 +275,35 @@ function init() {
     const foodLeft = squares.filter(square => square.classList.contains('food'))
     if (foodLeft.length === 0) {
       clearInterval(timerId2)
-      window.removeEventListener('keydown', pacMan.playerMove)
-      squares.forEach(square => square.classList.remove('player'))
+      clearInterval(timerId3)
+      window.removeEventListener('keydown', pacMan.handleKeyDown)
+      squares.forEach(square => square.classList.remove('pacman'))
       squares.forEach(square => square.classList.remove('red'))
       squares.forEach(square => square.classList.remove('blue'))
       pacMan.index = 658
+      pacMan.currentDirection = -1
+      pacMan.proposedDirection = -1
       redGhost.index = 322
+      redGhost.currentDirection = 1
       blueGhost.index = 405
-      squares[pacMan.index].classList.add('player')
+      blueGhost.currentDirection = 1
+      squares[pacMan.index].classList.add('pacman')
       squares[redGhost.index].classList.add('red')
       squares[blueGhost.index].classList.add('blue')
-      clearInterval(timerId3)
       clearInterval(timerId4)
+      clearInterval(timerId5)
       countDownTime = 3
-      gameTime = 0
-      gameSpeed -= 25
+      // gameTime = 0
+      level++
+      levelDisplay.innerHTML = level
+      ghostSpeed -= 10
       for (let i = 0; i < width * height; i++) {
         if (wallsArray[i] === 0) {
           squares[i].classList.add('food')
         }
       }
       startTimers()
-      console.log(gameSpeed)
+      console.log(ghostSpeed)
     }
   }
 
@@ -292,29 +315,45 @@ function init() {
       countdown.innerHTML = 'GO!'
       countDownTime--
     } else {
+      countdown.innerHTML = ' '
       clearInterval(timerId1)
     }
   }
 
-  function gameTimer () {
+  function playerMove () {
+    if (countDownTime < 0) {
+      pacMan.automaticMovement()
+      window.addEventListener('keydown', pacMan.handleKeyDown)
+      // gameTime++
+    }
+  }
+
+  function ghostsMove () {
     if (countDownTime < 0) {
       redGhost.chaseAggresive()
       blueGhost.chaseAggresive()
-      // pacMan.automaticMovement()
-      window.addEventListener('keydown', pacMan.playerMove)
-      gameTime++
+      // gameTime++
+    }
+  }
+
+  function spaceDown (e) {
+    if (e.keyCode === 32) {
+      startTimers()
     }
   }
 
   function startTimers () {
     timerId1 = setInterval(countDownTimer, 1000)
-    timerId2 = setInterval(gameTimer, gameSpeed)
-    timerId3 = setInterval(checkDeath, 0)
-    timerId4 = setInterval(checkLevelUp, 0)
+    timerId2 = setInterval(playerMove, playerSpeed)
+    timerId3 = setInterval(ghostsMove, ghostSpeed)
+    timerId4 = setInterval(checkDeath, 0)
+    timerId5 = setInterval(checkLevelUp, 0)
+    window.removeEventListener('keydown', startTimers)
   }
 
   // event handlers
-  startBtn.addEventListener('click', startTimers)
+  window.addEventListener('keydown', spaceDown)
+  // startBtn.addEventListener('click', startTimers)
 }
 
 window.addEventListener('DOMContentLoaded', init)
