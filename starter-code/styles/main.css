@@ -1,6 +1,7 @@
 * {
   box-sizing: border-box;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Press Start 2P', cursive;
+  word-spacing: -5px;
   text-align: center;
   margin: 0;
   padding: 0;
@@ -11,7 +12,7 @@
 html, body {
   background-color: rgb(0, 0, 20);
   color: white;
-  font-size: 16px;
+  font-size: 12px;
   margin: 0;
   padding: 0;
   height: 100vh;
@@ -27,7 +28,7 @@ div.container {
 
 div.upper-panel {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   min-width: 500px;
   margin: 10px 0 0 0;
 }
@@ -41,7 +42,8 @@ div.start {
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 14px;
+  margin: 5px 0 0 0;
 }
 
 .upper-panel > div {
@@ -54,10 +56,18 @@ h2 {
 
 h2.countdown {
   position: relative;
-  top: 333px;
+  top: 330px;
   color: yellow;
   font-weight: 900;
-  font-size: 18px;
+  font-size: 13px;
+}
+
+h2.countdown.hidden {
+  visibility: hidden;
+}
+
+h2.countdown.game-over {
+  color: red;
 }
 
 div.grid {
@@ -111,4 +121,8 @@ div.grid-item.blue {
 div.lives-left {
   margin: 10px 0 0 0;
   display: flex;
+}
+
+h2#lives-left.hidden {
+  visibility: hidden;
 }
