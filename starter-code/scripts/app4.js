@@ -28,10 +28,10 @@ function init() {
   let timerId3 = null
   let timerId4 = null
   let timerId5 = null
-  let countDownTime = 3 // countdown starts from 3 before game starts
+  let countDownTime = 1 // countdown starts from 3 before game starts
   // let gameTime = 0 // gameTime begins after countdown and starts from 0
-  const playerSpeed = 150
-  let ghostSpeed = 200
+  const playerSpeed = 1000
+  let ghostSpeed = 1000
 
   // SET INITIAL DOM VARIABLES
   levelDisplay.innerHTML = level
@@ -59,17 +59,17 @@ function init() {
     1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1,
     1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 7, 6, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1,
     1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1,
-    8, 1, 1, 1, 1, 1, 0, 1, 8, 1, 1, 1, 5, 1, 1, 5, 1, 1, 1, 9, 1, 0, 1, 1, 1, 1, 1, 9,
-    5, 5, 5, 5, 5, 1, 0, 1, 6, 1, 1, 1, 5, 1, 1, 5, 1, 1, 1, 7, 1, 0, 1, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 1, 0, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1, 1, 0, 1, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 1, 0, 1, 1, 5, 1, 1, 1, 4, 4, 1, 1, 1, 5, 1, 1, 0, 1, 5, 5, 5, 5, 5,
-    1, 1, 1, 1, 1, 1, 0, 1, 1, 5, 1, 2, 2, 4, 4, 3, 3, 1, 5, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-    0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 1, 2, 2, 4, 4, 3, 3, 1, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0,
-    1, 1, 1, 1, 1, 1, 0, 1, 1, 5, 1, 2, 2, 4, 4, 3, 3, 1, 5, 1, 1, 0, 1, 1, 1, 1, 1, 1,
-    5, 5, 5, 5, 5, 1, 0, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 0, 1, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 1, 0, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 1, 1, 0, 1, 5, 5, 5, 5, 5,
-    5, 5, 5, 5, 5, 1, 0, 1, 1, 5, 1, 1, 1, 1, 1, 1, 1, 1, 5, 1, 1, 0, 1, 5, 5, 5, 5, 5,
-    6, 1, 1, 1, 1, 1, 0, 1, 1, 5, 1, 1, 1, 7, 6, 1, 1, 1, 5, 1, 1, 0, 1, 1, 1, 1, 1, 7,
+    8, 1, 1, 1, 1, 1, 0, 1, 8, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 9, 1, 0, 1, 1, 1, 1, 1, 9,
+    5, 5, 5, 5, 5, 1, 0, 1, 6, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 7, 1, 0, 1, 5, 5, 5, 5, 5,
+    5, 5, 5, 5, 5, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 5, 5, 5, 5, 5,
+    5, 5, 5, 5, 5, 1, 0, 1, 1, 0, 1, 1, 1, 4, 4, 1, 1, 1, 0, 1, 1, 0, 1, 5, 5, 5, 5, 5,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 2, 2, 4, 4, 3, 3, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 4, 4, 3, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 2, 2, 4, 4, 3, 3, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+    5, 5, 5, 5, 5, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 5, 5, 5, 5, 5,
+    5, 5, 5, 5, 5, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 5, 5, 5, 5, 5,
+    5, 5, 5, 5, 5, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 5, 5, 5, 5, 5,
+    6, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 7, 6, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 7,
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
     1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1,
     1, 0, 1, 1, 7, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 6, 1, 1, 0, 1,
@@ -87,7 +87,7 @@ function init() {
     if (wallsArray[i] === 1) {
       squares[i].classList.add('wall')
       for (let j = 0; j < Object.keys(directionObject).length; j++) {
-        if ((wallsArray[i + directionArray[j]] === 0) || (wallsArray[i + directionArray[j]] === 5)) {
+        if (wallsArray[i + directionArray[j]] === 0) {
           squares[i].classList.add(directionObject[directionArray[j]])
         }
       }
@@ -129,10 +129,13 @@ function init() {
     }
     ghostMovementRules () {
       if (wallsArray[this.currentIndex] === 2) { // if ghost is on left hand side of cage, it should go right
+        this.currentIndex++
         this.currentDirection = 1
       } else if (wallsArray[this.currentIndex] === 3) { // if ghost is on right hand side of cage, it should go left
+        this.currentIndex--
         this.currentDirection = -1
       } else if (wallsArray[this.currentIndex] === 4) { // if ghost is down the middle of the cage, it should go up
+        this.currentIndex -= 28
         this.currentDirection = -28
       } else if (this.currentIndex === 392) { // if ghost is crossing hole in the wall, make sure it continues correctly
         switch (this.currentDirection) {
@@ -157,12 +160,12 @@ function init() {
         const nextAlong = this.currentIndex + this.currentDirection
         this.directionArray = [1, -1, 28, -28]
         this.whereToGo = []
-        if (wallsArray[nextAlong] === 0 || wallsArray[nextAlong] === 5) {
+        if (wallsArray[nextAlong] === 0) {
           this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== ((-1) * (this.currentDirection)))
         } // if no wall in same direction ghost is already going then remove opposite direction from options
         for (const eachDirection of this.directionArray) { // loop through all options left of where ghost can go
           const potentialPos = this.currentIndex + eachDirection
-          if (wallsArray[potentialPos] === 0 || wallsArray[potentialPos] === 5) {
+          if (wallsArray[potentialPos] === 0) {
             this.whereToGo.push(eachDirection) // push all directions left where there won't be a wall to whereToGo
           }
         }
@@ -207,12 +210,6 @@ function init() {
     blueChaseAggresive () {
       this.ghostMovementRules()
     }
-    orangeChaseAggresive() {
-      this.ghostMovementRules()
-    }
-    pinkChaseAggresive() {
-      this.ghostMovementRules()
-    }
   }
 
   class Player extends Characters {
@@ -245,9 +242,9 @@ function init() {
       }
       const proposedPos = this.currentIndex + this.proposedDirection
       const predictedPos = this.currentIndex + this.currentDirection
-      if (wallsArray[proposedPos] === 0 || wallsArray[proposedPos] === 5) {
+      if (wallsArray[proposedPos] === 0) {
         this.currentDirection = this.proposedDirection
-      } else if (wallsArray[predictedPos] === 0 || wallsArray[predictedPos] === 5) {
+      } else if (wallsArray[predictedPos] === 0) {
         this.currentDirection = this.currentDirection
       } else {
         this.currentDirection = 0
@@ -292,13 +289,7 @@ function init() {
   const blueGhost = new Characters('blue', 403, 404, 1)
   squares[blueGhost.currentIndex].classList.add('blue')
 
-  const orangeGhost = new Characters('orange', 432, 405, -28)
-  squares[orangeGhost.currentIndex].classList.add('orange')
-
-  const pinkGhost = new Characters('pink', 433, 406, -28)
-  squares[pinkGhost.currentIndex].classList.add('pink')
-
-  const ghostArray = [redGhost, blueGhost, orangeGhost, pinkGhost]
+  const ghostArray = [redGhost, blueGhost]
 
   function checkDeath () {
     for (let i = 0; i < ghostArray.length; i++) {
@@ -311,24 +302,16 @@ function init() {
         squares.forEach(square => square.classList.remove('pacman'))
         squares.forEach(square => square.classList.remove('red'))
         squares.forEach(square => square.classList.remove('blue'))
-        squares.forEach(square => square.classList.remove('orange'))
-        squares.forEach(square => square.classList.remove('pink'))
         pacMan.currentIndex = 658
         pacMan.currentDirection = -1
         pacMan.proposedDirection = -1
         redGhost.currentIndex = 322
         redGhost.currentDirection = 1
-        blueGhost.currentIndex = 404
+        blueGhost.currentIndex = 405
         blueGhost.currentDirection = 1
-        orangeGhost.currentIndex = 405
-        orangeGhost.currentDirection = -28
-        pinkGhost.currentIndex = 406
-        pinkGhost.currentDirection = -28
         squares[pacMan.currentIndex].classList.add('pacman')
         squares[redGhost.currentIndex].classList.add('red')
         squares[blueGhost.currentIndex].classList.add('blue')
-        squares[orangeGhost.currentIndex].classList.add('orange')
-        squares[pinkGhost.currentIndex].classList.add('pink')
         lives--
         if (lives >= 0) {
           countDownTime = 3
@@ -363,24 +346,16 @@ function init() {
       squares.forEach(square => square.classList.remove('pacman'))
       squares.forEach(square => square.classList.remove('red'))
       squares.forEach(square => square.classList.remove('blue'))
-      squares.forEach(square => square.classList.remove('orange'))
-      squares.forEach(square => square.classList.remove('pink'))
       pacMan.currentIndex = 658
       pacMan.currentDirection = -1
       pacMan.proposedDirection = -1
       redGhost.currentIndex = 322
       redGhost.currentDirection = 1
-      blueGhost.currentIndex = 404
+      blueGhost.currentIndex = 405
       blueGhost.currentDirection = 1
-      orangeGhost.currentIndex = 405
-      orangeGhost.currentDirection = -28
-      pinkGhost.currentIndex = 406
-      pinkGhost.currentDirection = -28
       squares[pacMan.currentIndex].classList.add('pacman')
       squares[redGhost.currentIndex].classList.add('red')
       squares[blueGhost.currentIndex].classList.add('blue')
-      squares[orangeGhost.currentIndex].classList.add('orange')
-      squares[pinkGhost.currentIndex].classList.add('pink')
       clearInterval(timerId4)
       clearInterval(timerId5)
       countDownTime = 3
@@ -430,8 +405,6 @@ function init() {
     if (countDownTime < 0) {
       redGhost.redChaseAggresive()
       blueGhost.blueChaseAggresive()
-      orangeGhost.orangeChaseAggresive()
-      pinkGhost.pinkChaseAggresive()
       // gameTime++
     }
   }
