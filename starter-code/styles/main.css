@@ -33,19 +33,6 @@ div.upper-panel {
   margin: 10px 0 0 0;
 }
 
-div.start {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 20%;
-}
-
-h2 {
-  font-size: 14px;
-  margin: 5px 0 0 0;
-}
-
 .upper-panel > div {
   display: flex;
   flex-direction: column;
@@ -54,12 +41,18 @@ h2 {
   flex-grow: 1;
 }
 
+h2 {
+  font-size: 14px;
+  margin: 5px 0 0 0;
+}
+
 h2.countdown {
   position: relative;
   top: 304px;
   color: yellow;
   font-weight: 900;
   font-size: 13px;
+  z-index: 1;
 }
 
 h2.countdown.hidden {
@@ -83,63 +76,70 @@ div.grid-item {
 }
 
 div.wall {
-  background-color: rgb(0, 4, 255);
+  background-color: rgb(0, 0, 20);
+  position: relative;
 }
 
 div.wall.top {
-  height: 5px;
-  margin: 6px 0 6px 0;
+  border-top: rgb(0, 4, 255) 5px solid;
+  top: 6px;
 }
 
 div.wall.bottom {
-  height: 5px;
-  margin: 6px 0 6px 0;
+  border-bottom: rgb(0, 4, 255) 5px solid;
+  bottom: 6px;
 }
 
 div.wall.right {
-  width: 5px;
-  margin: 0 6px 0 6px;
+  border-right: rgb(0, 4, 255) 5px solid;
+  right: 6px;
 }
 
 div.wall.left {
-  width: 5px;
-  margin: 0 6px 0 6px;
+  border-left: rgb(0, 4, 255) 5px solid;
+  left: 6px;
 }
 
-div.wall.right.bottom {
-  height: 11px;
-  width: 11px;
-  margin: 3px;
-  position: relative;
-  top: 3px;
-  left: 3px;
+div.wall.right.bottom.inner {
+  border-bottom: rgb(0, 4, 255) 5px solid;
+  border-right: rgb(0, 4, 255) 5px solid;
+  border-top: none;
+  border-left: none;
+  bottom: 6px;
+  right: 6px;
 }
 
-div.wall.left.bottom {
-  height: 11px;
-  width: 11px;
-  margin: 3px;
-  position: relative;
-  top: 3px;
-  right: 3px;
+div.wall.right.top.inner {
+  border-top: rgb(0, 4, 255) 5px solid;
+  border-right: rgb(0, 4, 255) 5px solid;
+  border-bottom: none;
+  border-left: none;
+  top: 6px;
+  right: 6px;
 }
 
-div.wall.right.top {
-  height: 11px;
-  width: 11px;
-  margin: 3px;
-  position: relative;
-  bottom: 3px;
-  left: 3px;
+div.wall.left.bottom.inner {
+  border-bottom: rgb(0, 4, 255) 5px solid;
+  border-left: rgb(0, 4, 255) 5px solid;
+  border-top: none;
+  border-right: none;
+  bottom: 6px;
+  right: -6px;
 }
 
-div.wall.left.top {
-  height: 11px;
-  width: 11px;
-  margin: 3px;
+div.wall.left.top.inner {
+  border-top: rgb(0, 4, 255) 5px solid;
+  border-left: rgb(0, 4, 255) 5px solid;
+  border-bottom: none;
+  border-right: none;
+  bottom: -6px;
+  right: -6px;
+}
+
+div.door {
   position: relative;
-  bottom: 3px;
-  right: 3px;
+  border-top: rgb(247, 162, 188) 5px solid;
+  top: 6px;
 }
 
 div.grid-item.food {
@@ -150,12 +150,30 @@ div.grid-item.food {
   margin: 6px;
 }
 
+div.grid-item.big-food {
+  background-color: rgb(247, 162, 188);
+  border-radius: 100%;
+  width: 13px;
+  height: 13px;
+  margin: 2px;
+  z-index: 1;
+}
+
 div.grid-item.pacman {
-  background-color: rgb(255, 238, 0);
-  border-radius: 50%;
-  width: 17px;
-  height: 17px;
   margin: 0px;
+  z-index: 2;
+  position: relative;
+  background-color: transparent;
+  width: 0px;
+  height: 0px;
+  border-right: 8.5px solid rgb(255, 238, 0);
+  border-top: 8.5px solid rgb(255, 238, 0);
+  border-left: 8.5px solid transparent;
+  border-bottom: 8.5px solid rgb(255, 238, 0);
+  border-top-left-radius: 8.5px;
+  border-top-right-radius: 8.5px;
+  border-bottom-left-radius: 8.5px;
+  border-bottom-right-radius: 8.5px;
 }
 
 div.grid-item.red {
@@ -164,7 +182,29 @@ div.grid-item.red {
   width: 17px;
   height: 17px;
   margin: 0px;
+  z-index: 3;
 }
+
+/* div.grid-item.red {
+  background: red;
+  display: inline-block;
+  height: 10px;
+  margin-left: 0px;
+  margin-top: 7px;
+  position: relative;
+  width: 17px;
+}
+div.grid-item.red:before {
+  border-bottom: 17px solid red;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  content: "";
+  height: 0;
+  left: 0;
+  position: absolute;
+  top: -10px;
+  width: 17px;
+} */
 
 div.grid-item.blue {
   background-color: rgb(0, 225, 255);
@@ -172,6 +212,7 @@ div.grid-item.blue {
   width: 17px;
   height: 17px;
   margin: 0px;
+  z-index: 3;
 }
 
 div.grid-item.orange {
@@ -180,6 +221,7 @@ div.grid-item.orange {
   width: 17px;
   height: 17px;
   margin: 0px;
+  z-index: 3;
 }
 
 div.grid-item.pink {
@@ -188,6 +230,7 @@ div.grid-item.pink {
   width: 17px;
   height: 17px;
   margin: 0px;
+  z-index: 3;
 }
 
 div.lives-left {
