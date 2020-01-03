@@ -150,7 +150,7 @@ div.grid-item.food {
   margin: 6px;
 }
 
-div.grid-item.big-food {
+div.grid-item.energizer {
   background-color: rgb(247, 162, 188);
   border-radius: 100%;
   width: 13px;
@@ -225,7 +225,7 @@ div.grid-item.orange {
 }
 
 div.grid-item.pink {
-  background-color: pink;
+  background-color: rgb(255, 132, 245);
   border-radius: 80%;
   width: 17px;
   height: 17px;

@@ -32,20 +32,27 @@ function init() {
   let timerId5 = null
   let timerId6 = null
   let timerId7 = null
+  let timerId8 = null
+  let timerId9 = null
   let countDownTime = 0 // countdown starts from 3 before game starts
-  let gameTime = 0 // gameTime begins after countdown and starts from 0
+  let scatterTime = 0
+  let captureTime = 0
 
-  const playerSpeed = 100
-  let ghostSpeed = 100
+  const playerSpeed = 150
+  let ghostSpeed = 200
 
   // wallsArray constants
   const F = 'F' // food
+  const X = 'X' // food at junction
+  const E = 'E' // energizer
+  const Y = 'Y' // energizer at junction
   const N = 'N' // nothing
+  const Z = 'Z' // nothing at junction
   const L = 'L' // ghost goes left
   const U = 'U' // ghost goes up
   const R = 'R' // ghost goes right
   const D = 'D' // door to pen
-  const B = 'B' // big food
+  const openSquares = [F, X, E, Y, N, Z]
 
   // SET INITIAL DOM VARIABLES
   levelDisplay.innerHTML = level
@@ -66,38 +73,38 @@ function init() {
 
   const wallsArray = [
     2,0,0,0,0,0,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,0,0,0,0,0,0,3,
-    1,F,F,F,F,F,F,F,F,F,F,F,F,1,1,F,F,F,F,F,F,F,F,F,F,F,F,1,
+    1,X,F,F,F,F,X,F,F,F,F,F,X,1,1,X,F,F,F,F,F,X,F,F,F,F,X,1,
     1,F,6,0,0,7,F,6,0,0,0,7,F,1,1,F,6,0,0,0,7,F,6,0,0,7,F,1,
-    1,B,1,N,N,1,F,1,N,N,N,1,F,1,1,F,1,N,N,N,1,F,1,N,N,1,B,1,
+    1,E,1,N,N,1,F,1,N,N,N,1,F,1,1,F,1,N,N,N,1,F,1,N,N,1,E,1,
     1,F,9,0,0,8,F,9,0,0,0,8,F,9,8,F,9,0,0,0,8,F,9,0,0,8,F,1,
-    1,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,1,
+    1,X,F,F,F,F,X,F,F,X,F,F,X,F,F,X,F,F,X,F,F,X,F,F,F,F,X,1,
     1,F,6,0,0,7,F,6,7,F,6,0,0,0,0,0,0,7,F,6,7,F,6,0,0,7,F,1,
     1,F,9,0,0,8,F,1,1,F,9,0,0,3,2,0,0,8,F,1,1,F,9,0,0,8,F,1,
-    1,F,F,F,F,F,F,1,1,F,F,F,F,1,1,F,F,F,F,1,1,F,F,F,F,F,F,1,
+    1,X,F,F,F,F,X,1,1,X,F,F,X,1,1,X,F,F,X,1,1,X,F,F,F,F,X,1,
     5,0,0,0,0,7,F,1,5,0,0,7,N,1,1,N,6,0,0,4,1,F,6,0,0,0,0,4,
     N,N,N,N,N,1,F,1,2,0,0,8,N,9,8,N,9,0,0,3,1,F,1,N,N,N,N,N,
-    N,N,N,N,N,1,F,1,1,N,N,N,N,N,N,N,N,N,N,1,1,F,1,N,N,N,N,N,
+    N,N,N,N,N,1,F,1,1,Z,N,N,Z,N,N,Z,N,N,Z,1,1,F,1,N,N,N,N,N,
     N,N,N,N,N,1,F,1,1,N,6,0,0,D,D,0,0,7,N,1,1,F,1,N,N,N,N,N,
     0,0,0,0,0,8,F,9,8,N,1,R,R,U,U,L,L,1,N,9,8,F,9,0,0,0,0,0,
-    N,N,N,N,N,N,F,N,N,N,1,R,R,U,U,L,L,1,N,N,N,F,N,N,N,N,N,N,
+    N,N,N,N,N,N,X,N,N,Z,1,R,R,U,U,L,L,1,Z,N,N,X,N,N,N,N,N,N,
     0,0,0,0,0,7,F,6,7,N,1,R,R,U,U,L,L,1,N,6,7,F,6,0,0,0,0,0,
     N,N,N,N,N,1,F,1,1,N,9,0,0,0,0,0,0,8,N,1,1,F,1,N,N,N,N,N,
-    N,N,N,N,N,1,F,1,1,N,N,N,N,N,N,N,N,N,N,1,1,F,1,N,N,N,N,N,
+    N,N,N,N,N,1,F,1,1,Z,N,N,N,N,N,N,N,N,Z,1,1,F,1,N,N,N,N,N,
     N,N,N,N,N,1,F,1,1,N,6,0,0,0,0,0,0,7,N,1,1,F,1,N,N,N,N,N,
     2,0,0,0,0,8,F,9,8,N,9,0,0,3,2,0,0,8,N,9,8,F,9,0,0,0,0,3,
-    1,F,F,F,F,F,F,F,F,F,F,F,F,1,1,F,F,F,F,F,F,F,F,F,F,F,F,1,
+    1,X,F,F,F,F,X,F,F,X,F,F,X,1,1,X,F,F,F,F,F,X,F,F,F,F,X,1,
     1,F,6,0,0,7,F,6,0,0,0,7,F,1,1,F,6,0,0,0,7,F,6,0,0,7,F,1,
     1,F,9,0,3,1,F,9,0,0,0,8,F,9,8,F,9,0,0,0,8,F,1,2,0,8,F,1,
-    1,B,F,F,1,1,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,1,1,F,F,B,1,
+    1,Y,F,X,1,1,X,F,F,X,F,F,X,F,F,X,F,F,X,F,F,X,1,1,X,F,Y,1,
     5,0,7,F,1,1,F,6,7,F,6,0,0,0,0,0,0,7,F,6,7,F,1,1,F,6,0,4,
     2,0,8,F,9,8,F,1,1,F,9,0,0,3,2,0,0,8,F,1,1,F,9,8,F,9,0,3,
-    1,F,F,F,F,F,F,1,1,F,F,F,F,1,1,F,F,F,F,1,1,F,F,F,F,F,F,1,
+    1,X,F,X,F,F,X,1,1,X,F,F,X,1,1,X,F,F,X,1,1,X,F,F,X,F,X,1,
     1,F,6,0,0,0,0,4,5,0,0,7,F,1,1,F,6,0,0,4,5,0,0,0,0,7,F,1,
     1,F,9,0,0,0,0,0,0,0,0,8,F,9,8,F,9,0,0,0,0,0,0,0,0,8,F,1,
-    1,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,1,
+    1,X,F,F,F,F,F,F,F,F,F,F,X,F,F,X,F,F,F,F,F,F,F,F,F,F,X,1,
     5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4]
 
-  // loop through walls array to build walls
+  // loop through walls array to build walls and food
   for (let i = 0; i < width * height; i++) {
     switch (wallsArray[i]) {
       case 0:
@@ -152,33 +159,39 @@ function init() {
         squares[i].classList.add('left')
         squares[i].classList.add('inner')
         break
-      case D:
-        squares[i].classList.add('door')
-        break
       case F:
         squares[i].classList.add('food')
         break
-      case B:
-        squares[i].classList.add('big-food')
+      case X:
+        squares[i].classList.add('food')
+        break
+      case E:
+        squares[i].classList.add('energizer')
+        break
+      case Y:
+        squares[i].classList.add('energizer')
+        break
+      case D:
+        squares[i].classList.add('door')
         break
     }
   }
 
   // create Ghost class with properties and movement method
   class Characters {
-    constructor(name, previousIndex, currentIndex, currentDirection) {
+    constructor(name, previousIndex, currentIndex, currentDirection, penPosition) {
       this.name = name, // colour of ghost
       this.previousIndex = previousIndex // previous position
       this.currentIndex = currentIndex // current position
-      this.currentRow = Math.ceil((this.currentIndex + 1) / width)
-      this.currentColumn = ((this.currentIndex + 1) % width) === 0 ? width : ((this.currentIndex + 1) % width)
       this.currentDirection = currentDirection, // current direction
-      this.directionArray = [1, -1, 28, -28, 27, -27], // array of possible directions, to be filtered down
-      this.whereToGo = [] // empty array to be filled with available directions
-    }
-    storeCoordinates () {
+      this.penPosition = penPosition
       this.currentRow = Math.ceil((this.currentIndex + 1) / width)
       this.currentColumn = ((this.currentIndex + 1) % width) === 0 ? width : ((this.currentIndex + 1) % width)
+      this.distanceBetween = Math.sqrt((this.rowDifference ** 2) + (this.columnDifference ** 2))
+      this.directionArray = [1, -1, 28, -28, 27, -27], // array of possible directions, to be filtered down
+      this.openSquares = [F, X, E, Y, N, Z]
+      this.whereToGo = [] // empty array to be filled with available directions
+      this.inPenOrNot = 'N'
     }
     specialTiles () {
       if (wallsArray[this.currentIndex] === 'R') { // if ghost is on left hand side of pen, it should go right
@@ -212,26 +225,49 @@ function init() {
 
       const nextAlong = this.currentIndex + this.currentDirection
 
-      this.directionArray = [1, -1, 28, -28]
+      this.directionArray = [1, -1, 28, -28].concat(this.whereToGo)
+
+      this.whereToGo = []
 
       // If there is no wall in same direction the ghost is already going, then remove opposite direction from options
 
-      if (wallsArray[nextAlong] === 'F' || wallsArray[nextAlong] === 'B' || wallsArray[nextAlong] === 'N') {
+      this.openSquares = [F, X, E, Y, N, Z]
+
+      if (openSquares.includes(wallsArray[nextAlong])) {
         this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== ((-1) * (this.currentDirection)))
       }
-      
-      this.whereToGo = []
 
       for (const eachDirection of this.directionArray) { // loop through all options left of where ghost can go
         const potentialPos = this.currentIndex + eachDirection
-        if (wallsArray[potentialPos] === 'F' || wallsArray[potentialPos] === 'B' || wallsArray[potentialPos] === 'N') {
+        if (openSquares.includes(wallsArray[potentialPos])) {
           this.whereToGo.push(eachDirection) // push all directions left where there won't be a wall to whereToGo
         }
       }
-
+    }
+    redSmartMove () {
+      const smartDirectionsArray = []
+      for (const eachDirection of this.whereToGo) {
+        const potentialSmartPos = this.currentIndex + eachDirection
+        const potentialSmartRow = Math.ceil((potentialSmartPos + 1) / width)
+        const potentialSmartColumn = ((potentialSmartPos + 1) % width) === 0 ? width : ((potentialSmartPos + 1) % width)
+        const smartRowDifference = potentialSmartRow - pacMan.currentRow
+        const smartColumnDifference = potentialSmartColumn - pacMan.currentColumn
+        const potentialDistance = Math.sqrt((smartRowDifference ** 2) + (smartColumnDifference ** 2))
+        smartDirectionsArray.push(potentialDistance)
+      }
+      let lowest = 0
+      for (let i = 0; i < smartDirectionsArray.length; i++) {
+        if (smartDirectionsArray[i] < smartDirectionsArray[lowest]) {
+          lowest = i
+        }
+      }
+      const shortestDirection = this.whereToGo[lowest]
+      this.whereToGo = []
+      this.whereToGo.push(shortestDirection)
+    }
+    chooseDirection () {
       const randomNumber = Math.floor(Math.random() * this.whereToGo.length)
       this.currentDirection = this.whereToGo[randomNumber] // choose direction from array based off random number
-
     }
     updateGrid () {
       // update next ghost position by adding direction to current position
@@ -243,85 +279,84 @@ function init() {
       squares.forEach(square => square.classList.remove(this.name))
       squares[this.currentIndex].classList.add(this.name)
     }
+    storeCoordinates () {
+      this.currentRow = Math.ceil((this.currentIndex + 1) / width)
+      this.currentColumn = ((this.currentIndex + 1) % width) === 0 ? width : ((this.currentIndex + 1) % width)
+    }
     redChaseAggresive () {
+      this.whereToGo = []
       if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
         this.specialTiles()
       } else {
-
-        // Add one smart direction to the direction array. If ghost can go that way then it will be in there twice now, increasing the chance of it going that way. If the ghost cannot go that way then it will not be considered at all for the next direction
-
-        let smartDirection = null
-        const rowDifference = this.currentRow - pacMan.currentRow
-        const columnDifference = this.currentColumn - pacMan.currentColumn
-        const positiveRowDifference = rowDifference < 0 ? -rowDifference : rowDifference
-        const positiveColumnDifference = columnDifference < 0 ? -columnDifference : columnDifference
-        const randomNumberSmart = Math.floor(Math.random() * 2)
-        let smartDirectionsArray = []
-
-        if (positiveRowDifference > positiveColumnDifference) {
-          if (rowDifference > 0) {
-            smartDirection = -28
-          } else {
-            smartDirection = 28
-          }
-        } else if (positiveColumnDifference > positiveRowDifference) {
-          if (columnDifference > 0) {
-            smartDirection = -1
-          } else {
-            smartDirection = 1
-          }
-        } else {
-          if (rowDifference > 0 && columnDifference > 0) {
-            smartDirectionsArray = [-1, -28]
-          } else if (rowDifference > 0 && columnDifference < 0) {
-            smartDirectionsArray = [1, -28]
-          } else if (rowDifference < 0 && columnDifference > 0) {
-            smartDirectionsArray = [-1, 28]
-          } else {
-            smartDirectionsArray = [1, 28]
-          }
-          smartDirection = smartDirectionsArray[randomNumberSmart]
-        }
-
-        this.directionArray = [1, -1, 28, -28]
-
-        this.directionArray.push(smartDirection)
-        // this.directionArray.push(smartDirection)
-        // this.directionArray.push(smartDirection)
-
         this.standardTiles()
+        this.redSmartMove()
+        this.chooseDirection()
       }
-      
-      this.storeCoordinates()
       this.updateGrid()
+      this.storeCoordinates()
     }
     blueChaseAggresive () {
+      this.whereToGo = []
       if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
         this.specialTiles()
       } else {
         this.standardTiles()
+        this.chooseDirection()
       }
       this.updateGrid()
+      this.storeCoordinates()
     }
     orangeChaseAggresive() {
+      this.whereToGo = []
       if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
         this.specialTiles()
       } else {
         this.standardTiles()
+        this.chooseDirection()
       }
       this.updateGrid()
+      this.storeCoordinates()
     }
     pinkChaseAggresive() {
+      this.whereToGo = []
       if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
         this.specialTiles()
       } else {
         this.standardTiles()
+        this.chooseDirection()
       }
       this.updateGrid()
+      this.storeCoordinates()
     }
     scatter() {
-      for (let i = gameTime; i < (gameTime + 10); i++) {
-        console.log('yo')
+      if (scatterTime < 60) {
+        console.log(scatterTime)
+        scatterTime++
+        this.whereToGo = []
+        if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
+          this.specialTiles()
+        } else {
+          this.standardTiles()
+          this.chooseDirection()
+        }
+        this.updateGrid()
+        this.storeCoordinates()
+      } else {
+        clearInterval(timerId7)
+        clearInterval(timerId8)
+        clearInterval(timerId9)
+        scatterTime = 0
+        gameTimers()
+      }
+    } 
+    checkGhostCapture() {
+      if (scatterTime < 30) {
+        if (pacMan.currentIndex === this.currentIndex || ((pacMan.currentIndex === this.previousIndex) && (pacMan.previousIndex === this.currentIndex))) {
+          this.currentIndex = this.penPosition
+          squares.forEach(square => square.classList.remove(this.name))
+          squares[this.currentIndex].classList.add(this.name)
+          this.inPenOrNot = 'Y'
+        }
       }
     }
   }
@@ -334,31 +369,39 @@ function init() {
     automaticMovement () {
       switch (this.currentIndex) {
         case 392:
-          switch (this.proposedDirection) {
+          switch (this.currentDirection) {
             case -1:
-              this.proposedDirection = 27
+              if (this.proposedDirection !== 1) {
+                this.currentDirection = 27
+              }
               break
             case -27:
-              this.proposedDirection = 1
+              if (this.proposedDirection !== -1) {
+                this.currentDirection = 1
+              }
               break
           }
           break
         case 419:
-          switch (this.proposedDirection) {
+          switch (this.currentDirection) {
             case 1:
-              this.proposedDirection = -27
+              if (this.proposedDirection !== -1) {
+                this.currentDirection = -27
+              }
               break
             case 27:
-              this.proposedDirection = -1
+              if (this.proposedDirection !== 1) {
+                this.currentDirection = -1
+              }
               break
           }
           break
       }
       const proposedPos = this.currentIndex + this.proposedDirection
       const predictedPos = this.currentIndex + this.currentDirection
-      if (wallsArray[proposedPos] === 'F' || wallsArray[proposedPos] === 'B' || wallsArray[proposedPos] === 'N') {
+      if (openSquares.includes(wallsArray[proposedPos])) {
         this.currentDirection = this.proposedDirection
-      } else if (wallsArray[predictedPos] === 'F' || wallsArray[proposedPos] === 'B' || wallsArray[predictedPos] === 'N') {
+      } else if (openSquares.includes(wallsArray[predictedPos])) {
         this.currentDirection = this.currentDirection
       } else {
         this.currentDirection = 0
@@ -375,8 +418,7 @@ function init() {
           highScore = score
         }
         highScoreDisplay.innerHTML = highScore
-      } else if (squares[this.currentIndex].classList.contains('big-food')) {
-        squares[this.currentIndex].classList.remove('big-food')
+      } else if (squares[this.currentIndex].classList.contains('energizer')) {
         score += 50
         if (score > highScore) {
           highScore = score
@@ -407,19 +449,31 @@ function init() {
   const pacMan = new Player('pacman', 659, 658, -1, -1)
   squares[pacMan.currentIndex].classList.add('pacman') // put pacman in starting position
 
-  const redGhost = new Characters('red', 321, 322, 1)
+  const redGhost = new Characters('red', 321, 322, 1, 407)
   squares[redGhost.currentIndex].classList.add('red')
 
-  const blueGhost = new Characters('blue', 403, 404, 1)
+  const blueGhost = new Characters('blue', 403, 404, 1, 404)
   squares[blueGhost.currentIndex].classList.add('blue')
 
-  const orangeGhost = new Characters('orange', 432, 405, -28)
+  const orangeGhost = new Characters('orange', 432, 405, -28, 405)
   squares[orangeGhost.currentIndex].classList.add('orange')
 
-  const pinkGhost = new Characters('pink', 433, 406, -28)
+  const pinkGhost = new Characters('pink', 433, 406, -28, 406)
   squares[pinkGhost.currentIndex].classList.add('pink')
 
   const ghostArray = [redGhost, blueGhost, orangeGhost, pinkGhost]
+
+  function playerMove () {
+    pacMan.automaticMovement()
+    window.addEventListener('keydown', pacMan.handleKeyDown)
+  }
+
+  function ghostsChase () {
+    redGhost.redChaseAggresive()
+    blueGhost.blueChaseAggresive()
+    orangeGhost.orangeChaseAggresive()
+    pinkGhost.pinkChaseAggresive()
+  }
 
   function checkDeath () {
     for (let i = 0; i < ghostArray.length; i++) {
@@ -453,18 +507,18 @@ function init() {
         lives--
         if (lives >= 0) {
           countDownTime = 3
-          gameTime = 0
+          // gameTime = 0
           livesDisplay.innerHTML = `${lives} lives left`
-          startTimers()
+          startTimer()
         } else {
           livesDisplay.innerHTML = 'hit space to restart'
           countdownDisplay.innerHTML = 'GAME OVER'
           countdownDisplay.classList.add('game-over')
           for (let i = 0; i < width * height; i++) {
-            if (wallsArray[i] === 'F') {
+            if (wallsArray[i] === 'F' || wallsArray[i] === 'X') {
               squares[i].classList.add('food')
-            } else if (wallsArray[i] === 'B') {
-              squares[i].classList.add('big-food')
+            } else if (wallsArray[i] === 'E' || wallsArray[i] === 'Y') {
+              squares[i].classList.add('energizer')
             }
           }
           level = 1
@@ -507,34 +561,70 @@ function init() {
       clearInterval(timerId4)
       clearInterval(timerId5)
       countDownTime = 3
-      gameTime = 0
+      // gameTime = 0
       level++
       levelDisplay.innerHTML = level
       ghostSpeed -= 10
       for (let i = 0; i < width * height; i++) {
-        if (wallsArray[i] === 'F') {
+        if (wallsArray[i] === 'F' || wallsArray[i] === 'X') {
           squares[i].classList.add('food')
-        } else if (wallsArray[i] === 'B') {
-          squares[i].classList.add('big-food')
+        } else if (wallsArray[i] === 'E' || wallsArray[i] === 'Y') {
+          squares[i].classList.add('energizer')
         }
       }
-      startTimers()
+      startTimer()
     }
   }
 
-  function checkBigFood () {
-    const bigFoodArray = []
-    for (let i = 0; i < wallsArray.length; i++) {
-      if (wallsArray[i] === B) {
-        bigFoodArray.push(i)
+  function checkEnergizer () {
+    if (squares[pacMan.currentIndex].classList.contains('energizer')) {
+      squares[pacMan.currentIndex].classList.remove('energizer')
+      clearInterval(timerId3)
+      clearInterval(timerId4)
+      clearInterval(timerId6)
+      timerId7 = setInterval(ghostsScatter, ghostSpeed * 3)
+      timerId8 = setInterval(checkGhostCaptureAll)
+      timerId9 = setInterval(checkGhostInPen, 10)
+    }
+  }
+
+  function ghostsScatter () {
+    ghostArray.forEach(ghost => ghost.scatter())
+  }
+
+  function checkGhostCaptureAll () {
+    ghostArray.forEach(ghost => ghost.checkGhostCapture())
+  }
+
+  function checkGhostInPen () {
+    for (const eachGhost of ghostArray) {
+      if (eachGhost.inPenOrNot === 'Y') {
+        if (captureTime < 1000) {
+          eachGhost.currentIndex = eachGhost.penPosition
+          squares.forEach(square => square.classList.remove(eachGhost.name))
+          squares[eachGhost.currentIndex].classList.add(eachGhost.name)
+          captureTime++
+        } else {
+          eachGhost.inPenOrNot = 'N'
+          clearInterval(timerId9)
+        }
       }
     }
-    for (let i = 0; i < bigFoodArray.length; i++) {
-      if (pacMan.currentIndex === bigFoodArray[i]) {
-        ghostArray.forEach(ghost => ghost.scatter())
-        clearInterval(timerId6)
-      }
+  }
+
+  // TIMERS
+
+  function spaceDown (e) {
+    if (e.keyCode === 32) {
+      startTimer()
+      levelDisplay.innerHTML = level
+      currentScoreDisplay.innerHTML = '00'
+      livesDisplay.innerHTML = `${lives} lives left`
     }
+  }
+
+  function startTimer () {
+    timerId1 = setInterval(countDownTimer, 1000)
   }
 
   function countDownTimer () {
@@ -551,6 +641,8 @@ function init() {
       countDownTime--
     } else if (countDownTime === 0) {
       countdownDisplay.innerHTML = 'go!'
+      gameTimers()
+      playerTimer()
       countDownTime--
     } else {
       countdownDisplay.classList.add('hidden')
@@ -558,50 +650,21 @@ function init() {
     }
   }
 
-  function gameTimer () {
-    if (countDownTime < 0) {
-      gameTime++
-      // console.log(gameTime)
-    }
-  }
-
-  function playerMove () {
-    if (countDownTime < 0) {
-      pacMan.automaticMovement()
-      window.addEventListener('keydown', pacMan.handleKeyDown)
-    }
-  }
-
-  function ghostsMove () {
-    if (countDownTime < 0) {
-      redGhost.redChaseAggresive()
-      blueGhost.blueChaseAggresive()
-      orangeGhost.orangeChaseAggresive()
-      pinkGhost.pinkChaseAggresive()
-    }
-  }
-
-  function spaceDown (e) {
-    if (e.keyCode === 32) {
-      startTimers()
-      levelDisplay.innerHTML = level
-      currentScoreDisplay.innerHTML = '00'
-      livesDisplay.innerHTML = `${lives} lives left`
-    }
-  }
-
-  function startTimers () {
-    timerId1 = setInterval(countDownTimer, 1000)
+  function playerTimer () {
     timerId2 = setInterval(playerMove, playerSpeed)
-    timerId3 = setInterval(ghostsMove, ghostSpeed)
+  }
+
+  function gameTimers () {
+    console.log('yo')
+    timerId3 = setInterval(ghostsChase, ghostSpeed)
     timerId4 = setInterval(checkDeath)
     timerId5 = setInterval(checkLevelUp)
-    timerId6 = setInterval(checkBigFood)
-    timerId7 = setInterval(gameTimer, 1000)
+    timerId6 = setInterval(checkEnergizer)
     window.removeEventListener('keydown', spaceDown)
   }
 
   // EVENT HANDLERS
+
   window.addEventListener('keydown', spaceDown)
 }
 

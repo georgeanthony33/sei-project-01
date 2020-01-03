@@ -144,3 +144,110 @@ const wallsArray = [
   1,F,9,0,0,0,0,0,0,0,0,8,F,9,8,F,9,0,0,0,0,0,0,0,0,8,F,1,
   1,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,1,
   5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4]
+
+const wallsArray2 = [
+  2,0,0,0,0,0,0,0,0,0,0,0,0,3,2,0,0,0,0,0,0,0,0,0,0,0,0,3,
+  1,F,F,F,F,F,F,F,F,F,F,F,F,1,1,F,F,F,F,F,F,F,F,F,F,F,F,1,
+  1,F,6,0,0,7,F,6,0,0,0,7,F,1,1,F,6,0,0,0,7,F,6,0,0,7,F,1,
+  1,B,1,N,N,1,F,1,N,N,N,1,F,1,1,F,1,N,N,N,1,F,1,N,N,1,B,1,
+  1,F,9,0,0,8,F,9,0,0,0,8,F,9,8,F,9,0,0,0,8,F,9,0,0,8,F,1,
+  1,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,1,
+  1,F,6,0,0,7,F,6,7,F,6,0,0,0,0,0,0,7,F,6,7,F,6,0,0,7,F,1,
+  1,F,9,0,0,8,F,1,1,F,9,0,0,3,2,0,0,8,F,1,1,F,9,0,0,8,F,1,
+  1,F,F,F,F,F,F,1,1,F,F,F,F,1,1,F,F,F,F,1,1,F,F,F,F,F,F,1,
+  5,0,0,0,0,7,F,1,5,0,0,7,N,1,1,N,6,0,0,4,1,F,6,0,0,0,0,4,
+  N,N,N,N,N,1,F,1,2,0,0,8,N,9,8,N,9,0,0,3,1,F,1,N,N,N,N,N,
+  N,N,N,N,N,1,F,1,1,N,N,N,N,N,N,N,N,N,N,1,1,F,1,N,N,N,N,N,
+  N,N,N,N,N,1,F,1,1,N,6,0,0,D,D,0,0,7,N,1,1,F,1,N,N,N,N,N,
+  0,0,0,0,0,8,F,9,8,N,1,R,R,U,U,L,L,1,N,9,8,F,9,0,0,0,0,0,
+  N,N,N,N,N,N,F,N,N,N,1,R,R,U,U,L,L,1,N,N,N,F,N,N,N,N,N,N,
+  0,0,0,0,0,7,F,6,7,N,1,R,R,U,U,L,L,1,N,6,7,F,6,0,0,0,0,0,
+  N,N,N,N,N,1,F,1,1,N,9,0,0,0,0,0,0,8,N,1,1,F,1,N,N,N,N,N,
+  N,N,N,N,N,1,F,1,1,N,N,N,N,N,N,N,N,N,N,1,1,F,1,N,N,N,N,N,
+  N,N,N,N,N,1,F,1,1,N,6,0,0,0,0,0,0,7,N,1,1,F,1,N,N,N,N,N,
+  2,0,0,0,0,8,F,9,8,N,9,0,0,3,2,0,0,8,N,9,8,F,9,0,0,0,0,3,
+  1,F,F,F,F,F,F,F,F,F,F,F,F,1,1,F,F,F,F,F,F,F,F,F,F,F,F,1,
+  1,F,6,0,0,7,F,6,0,0,0,7,F,1,1,F,6,0,0,0,7,F,6,0,0,7,F,1,
+  1,F,9,0,3,1,F,9,0,0,0,8,F,9,8,F,9,0,0,0,8,F,1,2,0,8,F,1,
+  1,B,F,F,1,1,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,1,1,F,F,B,1,
+  5,0,7,F,1,1,F,6,7,F,6,0,0,0,0,0,0,7,F,6,7,F,1,1,F,6,0,4,
+  2,0,8,F,9,8,F,1,1,F,9,0,0,3,2,0,0,8,F,1,1,F,9,8,F,9,0,3,
+  1,F,F,F,F,F,F,1,1,F,F,F,F,1,1,F,F,F,F,1,1,F,F,F,F,F,F,1,
+  1,F,6,0,0,0,0,4,5,0,0,7,F,1,1,F,6,0,0,4,5,0,0,0,0,7,F,1,
+  1,F,9,0,0,0,0,0,0,0,0,8,F,9,8,F,9,0,0,0,0,0,0,0,0,8,F,1,
+  1,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,1,
+  5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4]
+
+if (positiveRowDifference > positiveColumnDifference) {
+  if (rowDifference > 0) {
+    smartDirection = -28
+  } else {
+    smartDirection = 28
+  }
+} else if (positiveColumnDifference > positiveRowDifference) {
+  if (columnDifference > 0) {
+    smartDirection = -1
+  } else {
+    smartDirection = 1
+  }
+} else {
+  if (rowDifference > 0 && columnDifference > 0) {
+    smartDirectionsArray = [-1, -28]
+  } else if (rowDifference > 0 && columnDifference < 0) {
+    smartDirectionsArray = [1, -28]
+  } else if (rowDifference < 0 && columnDifference > 0) {
+    smartDirectionsArray = [-1, 28]
+  } else {
+    smartDirectionsArray = [1, 28]
+  }
+  smartDirection = smartDirectionsArray[randomNumberSmart]
+}
+
+smartMove () {
+  
+  // Add one smart direction to the direction array. If ghost can go that way then it will be in there twice now, increasing the chance of it going that way. If the ghost cannot go that way then it will not be considered at all for the next direction
+
+  const rowDifference = this.currentRow - pacMan.currentRow
+  const columnDifference = this.currentColumn - pacMan.currentColumn
+  // const positiveRowDifference = rowDifference < 0 ? -rowDifference : rowDifference
+  // const positiveColumnDifference = columnDifference < 0 ? -columnDifference : columnDifference
+  let smartDirectionsArray = []
+  // this.whereToGo = []
+
+  if (rowDifference > 0) {
+    if (columnDifference > 0) {
+      smartDirectionsArray = [-1, -28]
+    } else if (columnDifference < 0) {
+      smartDirectionsArray = [1, -28]
+    } else {
+      smartDirectionsArray = [-28]
+    }
+  } else if (rowDifference < 0) {
+    if (columnDifference > 0) {
+      smartDirectionsArray = [-1, 28]
+    } else if (columnDifference < 0) {
+      smartDirectionsArray = [1, 28]
+    } else {
+      smartDirectionsArray = [28]
+    }
+  } else {
+    if (columnDifference > 0) {
+      smartDirectionsArray = [-1]
+    } else {
+      smartDirectionsArray = [1]
+    }
+  }
+
+  this.whereToGo = smartDirectionsArray.concat(smartDirectionsArray).concat(smartDirectionsArray)
+}
+
+closingIn () {
+  const rowDifference = this.currentRow - pacMan.currentRow
+  const columnDifference = this.currentColumn - pacMan.currentColumn
+  this.distanceBetween = Math.sqrt((rowDifference ** 2) + (columnDifference ** 2))
+  console.log(this.distanceBetween)
+  if (this.distanceBetween < 10) {
+    this.whereToGo = this.whereToGo.filter(eachDirection => eachDirection !== ((-1) * (this.currentDirection)))
+    console.log('yes', this.whereToGo)
+  }
+}
