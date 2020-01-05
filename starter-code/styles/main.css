@@ -160,77 +160,189 @@ div.grid-item.energizer {
 }
 
 div.grid-item.pacman {
+  background-color: yellow;
+  border-radius: 50%;
+  width: 17px;
+  height: 17px;
   margin: 0px;
   z-index: 2;
-  position: relative;
-  background-color: transparent;
-  width: 0px;
-  height: 0px;
-  border-right: 8.5px solid rgb(255, 238, 0);
-  border-top: 8.5px solid rgb(255, 238, 0);
-  border-left: 8.5px solid transparent;
-  border-bottom: 8.5px solid rgb(255, 238, 0);
-  border-top-left-radius: 8.5px;
-  border-top-right-radius: 8.5px;
-  border-bottom-left-radius: 8.5px;
-  border-bottom-right-radius: 8.5px;
+  transform: rotate(180deg);
+}
+
+div.grid-item.pacman.closed {
+  clip-path: polygon(68% 2%, 50% 0, 31% 3%, 14% 14%, 3% 30%, 0 51%, 3% 73%, 14% 88%, 28% 96%, 48% 100%, 64% 98%, 82% 90%, 93% 77%, 98% 61%, 40% 51%, 98% 41%, 94% 23%, 84% 9%);
+}
+
+div.grid-item.pacman.half {
+  clip-path: polygon(51% 0, 36% 2%, 22% 8%, 11% 17%, 3% 31%, 0% 48%, 2% 64%, 8% 78%, 19% 89%, 33% 96%, 51% 100%, 69% 97%, 82% 90%, 95% 78%, 40% 51%, 96% 21%, 83% 8%, 68% 1%);
+}
+
+div.grid-item.pacman.open {
+  clip-path: polygon(51% 0, 36% 2%, 22% 8%, 11% 17%, 3% 31%, 0% 48%, 2% 64%, 8% 78%, 19% 89%, 33% 96%, 51% 100%, 69% 97%, 76% 93%, 82% 88%, 40% 51%, 82% 9%, 74% 4%, 65% 1%);
+}
+
+div.grid-item.pacman.rotate0 {
+  transform: rotate(0deg);
+}
+
+div.grid-item.pacman.rotate90 {
+  transform: rotate(90deg);
+}
+
+div.grid-item.pacman.rotate180 {
+  transform: rotate(180deg);
+}
+
+div.grid-item.pacman.rotate270 {
+  transform: rotate(270deg);
 }
 
 div.grid-item.red {
+  position: relative;
+  display: inline-block;
   background-color: red;
-  border-radius: 80%;
+  border-radius: 0;
   width: 17px;
   height: 17px;
   margin: 0px;
   z-index: 3;
+  clip-path: polygon(100% 100%, 100% 40%, 98% 28%, 90% 16%, 80% 7%, 66% 1%, 56% 0, 45% 0, 33% 2%, 21% 7%, 11% 14%, 4% 24%, 1% 35%, 0 47%, 0 61%, 0% 75%, 0% 87%, 0% 100%, 17% 86%, 33% 100%, 49% 85%, 65% 100%, 82% 85%);
 }
 
-/* div.grid-item.red {
-  background: red;
-  display: inline-block;
-  height: 10px;
-  margin-left: 0px;
-  margin-top: 7px;
-  position: relative;
-  width: 17px;
-}
-div.grid-item.red:before {
-  border-bottom: 17px solid red;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  content: "";
-  height: 0;
-  left: 0;
+div.grid-item.red::before {
+  right: 10px;
+  top: 5px;
   position: absolute;
-  top: -10px;
-  width: 17px;
-} */
+  background-image: radial-gradient(black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.red::after {
+  left: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
 
 div.grid-item.blue {
+  position: relative;
+  display: inline-block;
   background-color: rgb(0, 225, 255);
-  border-radius: 80%;
+  border-radius: 0;
   width: 17px;
   height: 17px;
   margin: 0px;
   z-index: 3;
+  clip-path: polygon(100% 100%, 100% 40%, 98% 28%, 90% 16%, 80% 7%, 66% 1%, 56% 0, 45% 0, 33% 2%, 21% 7%, 11% 14%, 4% 24%, 1% 35%, 0 47%, 0 61%, 0% 75%, 0% 87%, 0% 100%, 17% 86%, 33% 100%, 49% 85%, 65% 100%, 82% 85%);
+}
+
+div.grid-item.blue::before {
+  right: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.blue::after {
+  left: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
 }
 
 div.grid-item.orange {
+  position: relative;
+  display: inline-block;
   background-color: orange;
-  border-radius: 80%;
+  border-radius: 0;
   width: 17px;
   height: 17px;
   margin: 0px;
   z-index: 3;
+  clip-path: polygon(100% 100%, 100% 40%, 98% 28%, 90% 16%, 80% 7%, 66% 1%, 56% 0, 45% 0, 33% 2%, 21% 7%, 11% 14%, 4% 24%, 1% 35%, 0 47%, 0 61%, 0% 75%, 0% 87%, 0% 100%, 17% 86%, 33% 100%, 49% 85%, 65% 100%, 82% 85%);
+}
+
+div.grid-item.orange::before {
+  right: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.orange::after {
+  left: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
 }
 
 div.grid-item.pink {
+  position: relative;
+  display: inline-block;
   background-color: rgb(255, 132, 245);
-  border-radius: 80%;
+  border-radius: 0;
   width: 17px;
   height: 17px;
   margin: 0px;
   z-index: 3;
+  clip-path: polygon(100% 100%, 100% 40%, 98% 28%, 90% 16%, 80% 7%, 66% 1%, 56% 0, 45% 0, 33% 2%, 21% 7%, 11% 14%, 4% 24%, 1% 35%, 0 47%, 0 61%, 0% 75%, 0% 87%, 0% 100%, 17% 86%, 33% 100%, 49% 85%, 65% 100%, 82% 85%);
+}
+
+div.grid-item.pink::before {
+  right: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.pink::after {
+  left: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.scatter {
+  background-color: rgba(7, 51, 246, 0.842);
 }
 
 div.lives-left {

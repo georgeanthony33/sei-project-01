@@ -1,0 +1,243 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Press Start 2P', cursive;
+  word-spacing: -5px;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+html, body {
+  background-color: rgb(0, 0, 20);
+  color: white;
+  font-size: 12px;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+}
+
+div.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0 0 0;
+  height: 100vh;
+}
+
+div.upper-panel {
+  display: flex;
+  justify-content: space-between;
+  min-width: 500px;
+  margin: 10px 0 0 0;
+}
+
+.upper-panel > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-grow: 1;
+}
+
+h2 {
+  font-size: 14px;
+  margin: 5px 0 0 0;
+}
+
+h2.countdown {
+  position: relative;
+  top: 304px;
+  color: yellow;
+  font-weight: 900;
+  font-size: 13px;
+  z-index: 1;
+}
+
+h2.countdown.hidden {
+  visibility: hidden;
+}
+
+h2.countdown.game-over {
+  color: red;
+}
+
+div.grid {
+  width: 459px;
+  height: 476px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+div.grid-item {
+  width: 17px;
+  height: 17px;
+}
+
+div.wall {
+  background-color: rgb(0, 0, 20);
+  position: relative;
+}
+
+div.wall.top {
+  border-top: rgb(0, 4, 255) 5px solid;
+  top: 6px;
+}
+
+div.wall.bottom {
+  border-bottom: rgb(0, 4, 255) 5px solid;
+  bottom: 6px;
+}
+
+div.wall.right {
+  border-right: rgb(0, 4, 255) 5px solid;
+  right: 6px;
+}
+
+div.wall.left {
+  border-left: rgb(0, 4, 255) 5px solid;
+  left: 6px;
+}
+
+div.wall.right.bottom.inner {
+  border-bottom: rgb(0, 4, 255) 5px solid;
+  border-right: rgb(0, 4, 255) 5px solid;
+  border-top: none;
+  border-left: none;
+  bottom: 6px;
+  right: 6px;
+}
+
+div.wall.right.top.inner {
+  border-top: rgb(0, 4, 255) 5px solid;
+  border-right: rgb(0, 4, 255) 5px solid;
+  border-bottom: none;
+  border-left: none;
+  top: 6px;
+  right: 6px;
+}
+
+div.wall.left.bottom.inner {
+  border-bottom: rgb(0, 4, 255) 5px solid;
+  border-left: rgb(0, 4, 255) 5px solid;
+  border-top: none;
+  border-right: none;
+  bottom: 6px;
+  right: -6px;
+}
+
+div.wall.left.top.inner {
+  border-top: rgb(0, 4, 255) 5px solid;
+  border-left: rgb(0, 4, 255) 5px solid;
+  border-bottom: none;
+  border-right: none;
+  bottom: -6px;
+  right: -6px;
+}
+
+div.door {
+  position: relative;
+  border-top: rgb(247, 162, 188) 5px solid;
+  top: 6px;
+}
+
+div.grid-item.food {
+  background-color: rgb(247, 162, 188);
+  border-radius: 100%;
+  width: 5px;
+  height: 5px;
+  margin: 6px;
+}
+
+div.grid-item.energizer {
+  background-color: rgb(247, 162, 188);
+  border-radius: 100%;
+  width: 13px;
+  height: 13px;
+  margin: 2px;
+  z-index: 1;
+}
+
+div.grid-item.pacman {
+  margin: 0px;
+  z-index: 2;
+  position: relative;
+  background-color: transparent;
+  width: 0px;
+  height: 0px;
+  border-right: 8.5px solid rgb(255, 238, 0);
+  border-top: 8.5px solid rgb(255, 238, 0);
+  border-left: 8.5px solid transparent;
+  border-bottom: 8.5px solid rgb(255, 238, 0);
+  border-top-left-radius: 8.5px;
+  border-top-right-radius: 8.5px;
+  border-bottom-left-radius: 8.5px;
+  border-bottom-right-radius: 8.5px;
+}
+
+div.grid-item.red {
+  background-color: red;
+  border-radius: 80%;
+  width: 17px;
+  height: 17px;
+  margin: 0px;
+  z-index: 3;
+}
+
+/* div.grid-item.red {
+  background: red;
+  display: inline-block;
+  height: 10px;
+  margin-left: 0px;
+  margin-top: 7px;
+  position: relative;
+  width: 17px;
+}
+div.grid-item.red:before {
+  border-bottom: 17px solid red;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  content: "";
+  height: 0;
+  left: 0;
+  position: absolute;
+  top: -10px;
+  width: 17px;
+} */
+
+div.grid-item.blue {
+  background-color: rgb(0, 225, 255);
+  border-radius: 80%;
+  width: 17px;
+  height: 17px;
+  margin: 0px;
+  z-index: 3;
+}
+
+div.grid-item.orange {
+  background-color: orange;
+  border-radius: 80%;
+  width: 17px;
+  height: 17px;
+  margin: 0px;
+  z-index: 3;
+}
+
+div.grid-item.pink {
+  background-color: rgb(255, 132, 245);
+  border-radius: 80%;
+  width: 17px;
+  height: 17px;
+  margin: 0px;
+  z-index: 3;
+}
+
+div.lives-left {
+  margin: 10px 0 0 0;
+  display: flex;
+}
+
+h2#lives-left.hidden {
+  visibility: hidden;
+}
