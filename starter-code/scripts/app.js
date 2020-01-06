@@ -35,8 +35,12 @@ function init() {
   let timerId7 = null
   let timerId8 = null
   let timerId9 = null
-  let countDownTime = 0 // countdown starts from 3 before game starts
-  let scatterTime = 0
+  let timerId10 = null
+  let timerId11 = null
+  let timerId12 = null
+  let timerId13 = null
+  let countDownTime = 3 // countdown starts from 3 before game starts
+  // let scatterTime = 0
 
   const playerSpeed = 150
   let ghostSpeed = 200
@@ -179,8 +183,10 @@ function init() {
 
   // create Ghost class with properties and movement method
   class Characters {
-    constructor(name, previousIndex, currentIndex, currentDirection, penPosition) {
+    constructor(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection, penPosition) {
       this.name = name, // colour of ghost
+      this.startingIndex = startingIndex
+      this.startingDirection = startingDirection
       this.previousIndex = previousIndex // previous position
       this.currentIndex = currentIndex // current position
       this.currentDirection = currentDirection, // current direction
@@ -191,17 +197,26 @@ function init() {
       this.directionArray = [1, -1, 28, -28, 27, -27], // array of possible directions, to be filtered down
       this.openSquares = [F, X, E, Y, N, Z]
       this.whereToGo = [] // empty array to be filled with available directions
+      this.chaseStatus = 'Y'
       this.inPenOrNot = 'N'
       this.captureTime = 0
+      this.scatterStatus = 'N'
+      this.scatterTime = 0
+
     }
     specialTiles () {
-      if (wallsArray[this.currentIndex] === 'R') { // if ghost is on left hand side of pen, it should go right
-        this.currentDirection = 1
-      } else if (wallsArray[this.currentIndex] === 'L') { // if ghost is on right hand side of pen, it should go left
-        this.currentDirection = -1
-      } else if (wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D') { // if ghost is down the middle of the pen, it should go up
-        this.currentDirection = -28
-      } else if (this.currentIndex === 392) { // if ghost is crossing hole in the wall, make sure it continues correctly
+      if (this.inPenOrNot === 'N') {
+        if (wallsArray[this.currentIndex] === 'R') { // if ghost is on left hand side of pen, it should go right
+          this.currentDirection = 1
+        } else if (wallsArray[this.currentIndex] === 'L') { // if ghost is on right hand side of pen, it should go left
+          this.currentDirection = -1
+        } else if (wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D') { // if ghost is down the middle of the pen, it should go up
+          this.currentDirection = -28
+        }
+      } else {
+        this.currentDirection = 0
+      }
+      if (this.currentIndex === 392) { // if ghost is crossing hole in the wall, make sure it continues correctly
         switch (this.currentDirection) {
           case -1:
             this.currentDirection = 27
@@ -284,54 +299,39 @@ function init() {
       this.currentRow = Math.ceil((this.currentIndex + 1) / width)
       this.currentColumn = ((this.currentIndex + 1) % width) === 0 ? width : ((this.currentIndex + 1) % width)
     }
-    redChaseAggresive () {
-      this.whereToGo = []
-      if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
-        this.specialTiles()
-      } else {
-        this.standardTiles()
-        this.redSmartMove()
-        this.chooseDirection()
+    chase () {
+      if (this.chaseStatus === 'Y') {
+        this.whereToGo = []
+        if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
+          this.specialTiles()
+        } else {
+          this.standardTiles()
+          if (this.name === 'red') {
+            this.redSmartMove()
+          }
+          this.chooseDirection()
+        }
+        this.updateGrid()
+        this.storeCoordinates()
       }
-      this.updateGrid()
-      this.storeCoordinates()
     }
-    blueChaseAggresive () {
-      this.whereToGo = []
-      if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
-        this.specialTiles()
-      } else {
-        this.standardTiles()
-        this.chooseDirection()
-      }
-      this.updateGrid()
-      this.storeCoordinates()
-    }
-    orangeChaseAggresive() {
-      this.whereToGo = []
-      if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
-        this.specialTiles()
-      } else {
-        this.standardTiles()
-        this.chooseDirection()
-      }
-      this.updateGrid()
-      this.storeCoordinates()
-    }
-    pinkChaseAggresive() {
-      this.whereToGo = []
-      if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
-        this.specialTiles()
-      } else {
-        this.standardTiles()
-        this.chooseDirection()
-      }
-      this.updateGrid()
-      this.storeCoordinates()
+    capturePacman () {
+      // if ((this.chaseStatus = 'Y') && (this.currentIndex === pacMan.currentIndex || (this.currentIndex === pacMan.previousIndex && this.previousIndex === pacMan.currentIndex))) {
+      //   capturePacmanAll()
+      //   squares.forEach(square => square.classList.remove(this.name))
+      //   this.currentIndex = this.startingIndex
+      //   this.currentDirection = this.startingDirection
+      //   this.captureTime = 0
+      //   this.scatterTime = 0
+      //   this.scatterStatus = 'N'
+      //   this.inPenOrNot = 'N'
+      //   this.chaseStatus = 'Y'
+      //   squares[this.currentIndex].classList.add(this.name)
+      // }
     }
     scatter() {
-      if (scatterTime < 60) {
-        scatterTime++
+      if (this.scatterStatus === 'Y') {
+        this.chaseStatus = 'N'
         this.whereToGo = []
         if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
           this.specialTiles()
@@ -341,25 +341,46 @@ function init() {
         }
         this.updateGrid()
         this.storeCoordinates()
-      } else {
-        clearInterval(timerId7)
-        clearInterval(timerId8)
-        scatterTime = 0
-        console.log(scatterTime, 'scatter over')
-        ghostTimers()
+
+        squares[this.previousIndex].classList.remove('scatter')
+        squares[this.currentIndex].classList.add('scatter')
+
+        this.scatterTime++
+        console.log('scatter')
+        if (this.scatterTime > 12) {
+
+          this.scatterStatus = 'N'
+          this.chaseStatus = 'Y'
+
+          switch (this.name) {
+            case 'red':
+              redChaseTimer()
+              break
+            case 'blue':
+              blueChaseTimer()
+              break
+            case 'orange':
+              orangeChaseTimer()
+              break
+            case 'pink':
+              pinkChaseTimer()
+              break
+          }
+          checkDeathTimer()
+          squares.forEach(square => square.classList.remove('scatter'))
+          this.scatterTime = 0
+        }
       }
     } 
     checkGhostCapture() {
-      if (scatterTime < 60 && this.captureTime < 500) {
+      if (this.scatterStatus === 'Y') {
         if (pacMan.currentIndex === this.currentIndex || ((pacMan.currentIndex === this.previousIndex) && (pacMan.previousIndex === this.currentIndex))) {
-          this.currentIndex = this.penPosition
-          squares.forEach(square => square.classList.remove(this.name))
-          squares[this.currentIndex].classList.add(this.name)
           this.inPenOrNot = 'Y'
+
+          squares[this.previousIndex].classList.remove('scatter')
+          squares[this.currentIndex].classList.remove('scatter')
+
         }
-      } else {
-        this.inPenOrNot = 'N'
-        this.captureTime = 0
       }
     }
     checkInPenOrNot () {
@@ -367,20 +388,30 @@ function init() {
         this.currentIndex = this.penPosition
         squares.forEach(square => square.classList.remove(this.name))
         squares[this.currentIndex].classList.add(this.name)
+        squares[this.currentIndex].classList.add('scatter')
+        // squares[this.previousIndex].classList.remove('scatter')
         this.captureTime++
-        if (this.captureTime >= 5000) {
+        if (this.captureTime > 1000) { 
           this.inPenOrNot = 'N'
           this.captureTime = 0
+          this.chaseStatus = 'Y'
         }
       }
     }
   }
 
   class Player extends Characters {
-    constructor(name, previousIndex, currentIndex, currentDirection, proposedDirection, pacManMouthArrayIndex) {
-      super(name, previousIndex, currentIndex, currentDirection)
+    constructor(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection, proposedDirection, pacManMouthArrayIndex) {
+      super(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection)
       this.proposedDirection = proposedDirection
       this.pacManMouthArrayIndex = pacManMouthArrayIndex
+      this.currentIndex = this.startingIndex
+      this.currentDirection = this.startingDirection
+      this.captureTime = 0
+      this.scatterTime = 0
+      this.scatterStatus = 'N'
+      this.inPenOrNot = 'N'
+      this.chaseStatus = 'Y'
     }
     automaticMovement () {
       switch (this.currentIndex) {
@@ -489,39 +520,53 @@ function init() {
     }
   }
 
-  const pacMan = new Player('pacman', 659, 658, -1, -1, 0)
+  const pacMan = new Player('pacman', 658, -1, 659, 658, -1, -1, 0)
   squares[pacMan.currentIndex].classList.add('pacman')
   squares[pacMan.currentIndex].classList.add('half') // put pacman in starting position
 
-  const redGhost = new Characters('red', 321, 322, 1, 407)
+  const redGhost = new Characters('red', 322, 1, 321, 322, 1, 404)
   squares[redGhost.currentIndex].classList.add('red')
 
-  const blueGhost = new Characters('blue', 432, 405, -28, 405)
+  const blueGhost = new Characters('blue', 405, -28, 432, 405, -28, 405)
   squares[blueGhost.currentIndex].classList.add('blue')
 
-  const orangeGhost = new Characters('orange', 433, 406, -28, 406)
+  const orangeGhost = new Characters('orange', 406, -28, 433, 406, -28, 406)
   squares[orangeGhost.currentIndex].classList.add('orange')
 
-  const pinkGhost = new Characters('pink', 408, 407, -1, 407)
+  const pinkGhost = new Characters('pink', 407, -1, 408, 407, -1, 407)
   squares[pinkGhost.currentIndex].classList.add('pink')
 
   const ghostArray = [redGhost, blueGhost, orangeGhost, pinkGhost]
+
+  // CHARACTER MOVEMENT FUNCTIONS
 
   function playerMove () {
     pacMan.automaticMovement()
     window.addEventListener('keydown', pacMan.handleKeyDown)
   }
 
-  function ghostsChase () {
-    redGhost.redChaseAggresive()
-    blueGhost.blueChaseAggresive()
-    orangeGhost.orangeChaseAggresive()
-    pinkGhost.pinkChaseAggresive()
+  function redGhostChase () {
+    redGhost.chase()
   }
 
-  function checkDeath () {
-    for (let i = 0; i < ghostArray.length; i++) {
-      if ((pacMan.currentIndex === ghostArray[i].currentIndex) || ((pacMan.currentIndex === ghostArray[i].previousIndex) && (pacMan.previousIndex === ghostArray[i].currentIndex))) {
+  function blueGhostChase () {
+    blueGhost.chase()
+  }
+
+  function orangeGhostChase () {
+    orangeGhost.chase()
+  }
+
+  function pinkGhostChase () {
+    pinkGhost.chase()
+  }
+
+  // ONGOING CHECKING FUNCTIONS
+
+  function checkDeathAll () {
+    // console.log('checking death')
+    for (const eachGhost of ghostArray) {
+      if (eachGhost.chaseStatus === 'Y' && ((pacMan.currentIndex === eachGhost.currentIndex) || ((pacMan.currentIndex === eachGhost.previousIndex) && (pacMan.previousIndex === eachGhost.currentIndex)))) {
         window.removeEventListener('keydown', pacMan.handleKeyDown)
         clearInterval(timerId2)
         clearInterval(timerId3)
@@ -531,30 +576,32 @@ function init() {
         clearInterval(timerId7)
         clearInterval(timerId8)
         clearInterval(timerId9)
+        clearInterval(timerId10)
+        clearInterval(timerId11)
+        clearInterval(timerId12)
+        clearInterval(timerId13)
         squares.forEach(square => square.classList.remove('pacman'))
         squares.forEach(square => square.classList.remove('red'))
         squares.forEach(square => square.classList.remove('blue'))
         squares.forEach(square => square.classList.remove('orange'))
         squares.forEach(square => square.classList.remove('pink'))
-        pacMan.currentIndex = 658
-        pacMan.currentDirection = -1
-        pacMan.proposedDirection = -1
-        redGhost.currentIndex = 322
-        redGhost.currentDirection = 1
-        blueGhost.currentIndex = 405
-        blueGhost.currentDirection = -28
-        orangeGhost.currentIndex = 406
-        orangeGhost.currentDirection = -28
-        pinkGhost.currentIndex = 407
-        pinkGhost.currentDirection = -21
+        pacMan.currentIndex = pacMan.startingIndex
+        pacMan.currentDirection = pacMan.startingDirection
+        pacMan.proposedDirection = pacMan.startingDirection
+        for (const eachGhost of ghostArray) {
+          eachGhost.currentIndex = eachGhost.startingIndex
+          eachGhost.currentDirection = eachGhost.startingDirection
+          eachGhost.captureTime = 0
+          eachGhost.scatterTime = 0
+          eachGhost.scatterStatus = 'N'
+          eachGhost.inPenOrNot = 'N'
+          eachGhost.chaseStatus = 'Y'
+        }
         squares[pacMan.currentIndex].classList.add('pacman')
         squares[redGhost.currentIndex].classList.add('red')
         squares[blueGhost.currentIndex].classList.add('blue')
         squares[orangeGhost.currentIndex].classList.add('orange')
         squares[pinkGhost.currentIndex].classList.add('pink')
-        for (const eachGhost in ghostArray) {
-          eachGhost.captureTime = 0
-        }
         lives--
         if (lives >= 0) {
           countDownTime = 3
@@ -593,6 +640,10 @@ function init() {
       clearInterval(timerId7)
       clearInterval(timerId8)
       clearInterval(timerId9)
+      clearInterval(timerId10)
+      clearInterval(timerId11)
+      clearInterval(timerId12)
+      clearInterval(timerId13)
       squares.forEach(square => square.classList.remove('pacman'))
       squares.forEach(square => square.classList.remove('red'))
       squares.forEach(square => square.classList.remove('blue'))
@@ -620,6 +671,10 @@ function init() {
       levelDisplay.innerHTML = level
       for (const eachGhost in ghostArray) {
         eachGhost.captureTime = 0
+        eachGhost.scatterTime = 0
+        eachGhost.scatterStatus = 'N'
+        eachGhost.inPenOrNot = 'N'
+        eachGhost.chaseStatus = 'Y'
       }
       for (let i = 0; i < width * height; i++) {
         if (wallsArray[i] === 'F' || wallsArray[i] === 'X') {
@@ -634,15 +689,27 @@ function init() {
 
   function checkEnergizer () {
     if (squares[pacMan.currentIndex].classList.contains('energizer')) {
+
       squares[pacMan.currentIndex].classList.remove('energizer')
+      squares[pacMan.currentIndex].classList.remove('flash')
+      
       clearInterval(timerId3)
       clearInterval(timerId4)
-      timerId7 = setInterval(ghostsScatter, ghostSpeed * 3)
-      timerId8 = setInterval(checkGhostCaptureAll)
+      clearInterval(timerId5)
+      clearInterval(timerId6)
+      clearInterval(timerId7)
+      
+      for (const eachGhost of ghostArray) {
+        if (eachGhost.scatterTime === 0) {
+          eachGhost.scatterStatus = 'Y'
+        } else if (eachGhost.scatterTime > 0 && eachGhost.scatterTime <= 15 && eachGhost.inPenOrNot === 'N') {
+          eachGhost.scatterTime = 0
+        }
+      }
     }
   }
 
-  function ghostsScatter () {
+  function checkGhostsScatterAll () {
     ghostArray.forEach(ghost => ghost.scatter())
   }
 
@@ -654,16 +721,15 @@ function init() {
     ghostArray.forEach(ghost => ghost.checkInPenOrNot())
   }
 
-  // TIMERS
-
-  function spaceDown (e) {
-    if (e.keyCode === 32) {
-      startTimer()
-      levelDisplay.innerHTML = level
-      currentScoreDisplay.innerHTML = '00'
-      livesDisplay.innerHTML = `${lives} lives left`
+  function checkPenStyle () {
+    for (const eachGhost of ghostArray) {
+      if (eachGhost.inPenOrNot === 'N') {
+        squares[eachGhost.penPosition].classList.remove('scatter')
+      }
     }
   }
+
+  // TIMERS
 
   function startTimer () {
     timerId1 = setInterval(countDownTimer, 1000)
@@ -684,12 +750,25 @@ function init() {
     } else if (countDownTime === 0) {
       countdownDisplay.innerHTML = 'go!'
       playerTimer()
-      ghostTimers()
+      redChaseTimer()
+      blueChaseTimer()
+      orangeChaseTimer()
+      pinkChaseTimer()
+      checkDeathTimer()
       levelUpTimer()
       energizerTimer()
+      checkGhostScatterTimer()
+      checkGhostCaptureTimer()
       penTimer()
+      checkPenStyleTimer()
+      window.removeEventListener('keydown', spaceDown)
       countDownTime--
-    } else {
+    } else if (countDownTime <= -1) {
+      for (let i = 0; i < width * height; i++) {
+        if (wallsArray[i] === 'E' || wallsArray[i] === 'Y') {
+          squares[i].classList.add('flash')
+        }
+      }
       countdownDisplay.classList.add('hidden')
       clearInterval(timerId1)
     }
@@ -699,27 +778,62 @@ function init() {
     timerId2 = setInterval(playerMove, playerSpeed)
   }
 
-  function ghostTimers () {
-    timerId3 = setInterval(ghostsChase, ghostSpeed)
-    timerId4 = setInterval(checkDeath)
-    window.removeEventListener('keydown', spaceDown)
+  function redChaseTimer () {
+    timerId3 = setInterval(redGhostChase, ghostSpeed)
+  }
+
+  function blueChaseTimer () {
+    timerId4 = setInterval(blueGhostChase, ghostSpeed)
+  }
+
+  function orangeChaseTimer () {
+    timerId5 = setInterval(orangeGhostChase, ghostSpeed)
+  }
+
+  function pinkChaseTimer () {
+    timerId6 = setInterval(pinkGhostChase, ghostSpeed)
+  }
+
+  function checkDeathTimer () {
+    timerId7 = setInterval(checkDeathAll)
   }
   
   function levelUpTimer () {
-    timerId5 = setInterval(checkLevelUp)
+    timerId8 = setInterval(checkLevelUp)
   }
 
   function energizerTimer () {
-    timerId6 = setInterval(checkEnergizer)
+    timerId9 = setInterval(checkEnergizer)
+  }
+
+  function checkGhostScatterTimer () {
+    timerId10 = setInterval(checkGhostsScatterAll, ghostSpeed * 3)
+  }
+
+  function checkGhostCaptureTimer () {
+    timerId11 = setInterval(checkGhostCaptureAll)
   }
 
   function penTimer () {
-    timerId9 = setInterval(checkGhostInPenAll, 1)
+    timerId12 = setInterval(checkGhostInPenAll, 1)
+  }
+
+  function checkPenStyleTimer () {
+    timerId13 = setInterval(checkPenStyle)
   }
 
   // EVENT HANDLERS
 
   window.addEventListener('keydown', spaceDown)
+
+  function spaceDown (e) {
+    if (e.keyCode === 32) {
+      startTimer()
+      levelDisplay.innerHTML = level
+      currentScoreDisplay.innerHTML = '00'
+      livesDisplay.innerHTML = `${lives} lives left`
+    }
+  }
 }
 
 window.addEventListener('DOMContentLoaded', init)

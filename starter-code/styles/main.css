@@ -159,6 +159,22 @@ div.grid-item.energizer {
   z-index: 1;
 }
 
+div.grid-item.energizer.flash {
+  animation: flash 1s infinite;
+}
+
+@keyframes flash {
+  0% { opacity: 1; }
+  20% { opacity: 1; }
+  30% { opacity: 0; }
+  70% { opacity: 0; }
+  80% { opacity: 1; }
+  100% { opacity: 1; }
+  /* 0% {background-color: red;}
+  50% {visibility: hidden;}
+  100% {background-color: green;} */
+}
+
 div.grid-item.pacman {
   background-color: yellow;
   border-radius: 50%;
