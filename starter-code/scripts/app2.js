@@ -26,17 +26,7 @@ function init() {
   let score = 0
   let highScore = 0
   let lives = 2 // initial lives -> die if lives < 0
-
-  // SET INITIAL DOM VARIABLES
-  levelDisplay.innerHTML = level
-  currentScoreDisplay.innerHTML = '00'
-  highScoreDisplay.innerHTML = '00'
-  countdownDisplay.innerHTML = 'hit space'
-  livesDisplay.innerHTML = `${lives} lives left`
   
-  // const timerArray = [timerId1, timerId2, timerId3, timerId4, timerId5, timerId6, timerId7, timerId8, timerId9, timerId10, timerId11]
-
-  // TIMER VARIABLES
   let timerId1 = null
   let timerId2 = null
   let timerId3 = null
@@ -48,11 +38,14 @@ function init() {
   let timerId9 = null
   let timerId10 = null
   let timerId11 = null
-  let countDownTime = 0
-  let ghostTime = 0
+  let timerId12 = null
+  let timerId13 = null
+  let timerId14 = null
+  let timerId15 = null
+  let countDownTime = 0 // countdown starts from 3 before game starts
+  let gameTime = 0
 
-  // SPEED VARIABLES
-  const playerSpeed = 150
+  const playerSpeed = 100
   let ghostSpeed = 200
 
   // wallsArray constants
@@ -68,6 +61,13 @@ function init() {
   const D = 'D' // door to pen
   const openSquares = [F, X, E, Y, N, Z]
 
+  // SET INITIAL DOM VARIABLES
+  levelDisplay.innerHTML = level
+  currentScoreDisplay.innerHTML = '00'
+  highScoreDisplay.innerHTML = '00'
+  countdownDisplay.innerHTML = 'hit space'
+  livesDisplay.innerHTML = `${lives} lives left`
+  
   // loop as many times as width times the height to fill the grid
   Array(width * height).join('.').split('.').forEach(() => { // create array with (width * height) empty elements ''
     const square = document.createElement('div') // create a square for each element
@@ -187,7 +187,7 @@ function init() {
   // create Ghost class with properties and movement method
   class Characters {
     constructor(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection, penPosition) {
-      this.name = name // colour of ghost
+      this.name = name, // colour of ghost
       this.startingIndex = startingIndex
       this.startingDirection = startingDirection
       this.previousIndex = previousIndex // previous position
@@ -200,15 +200,16 @@ function init() {
       this.directionArray = [1, -1, 28, -28, 27, -27], // array of possible directions, to be filtered down
       this.openSquares = [F, X, E, Y, N, Z]
       this.whereToGo = [] // empty array to be filled with available directions
-      this.scatterStatus = 'Y'
-      this.chaseStatus = 'N'
+      this.chaseStatus = 'Y'
+      this.inPenOrNot = 'N'
+      this.captureTime = 0
       this.frightenedStatus = 'N'
       this.frightenedTime = 0
-      this.captureStatus = 'N'
-      this.captureTime = 0
+      this.scatterStatus = 'Y'
+      this.scatterTime = 0
     }
     specialTiles () {
-      if (this.captureStatus === 'N') {
+      if (this.inPenOrNot === 'N') {
         if (wallsArray[this.currentIndex] === 'R') { // if ghost is on left hand side of pen, it should go right
           this.currentDirection = 1
         } else if (wallsArray[this.currentIndex] === 'L') { // if ghost is on right hand side of pen, it should go left
@@ -348,28 +349,28 @@ function init() {
       this.currentRow = Math.ceil((position + 1) / width)
       this.currentColumn = ((position + 1) % width) === 0 ? width : ((position + 1) % width)
     }
-    scatter () {
-      if (this.scatterStatus === 'Y') {
-        this.whereToGo = []
-        if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
-          this.specialTiles()
-        } else {
-          this.standardTiles()
-          // if (this.name === 'red') {
-          //   this.redScatter()
-          // } else if (this.name === 'pink') {
-          //   this.pinkScatter()
-          // } else if (this.name === 'blue') {
-          //   this.blueScatter()
-          // } else if (this.name === 'orange') {
-          //   this.orangeScatter()
-          // }
-          this.chooseDirection()
-        }
-        this.updateGrid()
-        this.storeCoordinates(this.currentIndex)
-      }
-    }
+    // scatter () {
+    //   if (this.scatterStatus === 'Y') {
+    //     this.whereToGo = []
+    //     if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
+    //       this.specialTiles()
+    //     } else {
+    //       this.standardTiles()
+    //       if (this.name === 'red') {
+    //         this.redScatter()
+    //       } else if (this.name === 'pink') {
+    //         this.pinkScatter()
+    //       } else if (this.name === 'blue') {
+    //         this.blueScatter()
+    //       } else if (this.name === 'orange') {
+    //         this.orangeScatter()
+    //       }
+    //       this.chooseDirection()
+    //     }
+    //     this.updateGrid()
+    //     this.storeCoordinates(this.currentIndex)
+    //   }
+    // }
     chase () {
       if (this.chaseStatus === 'Y') {
         this.whereToGo = []
@@ -391,10 +392,8 @@ function init() {
       }
     }
     frightened() {
-      console.log(this.scatterStatus, this.chaseStatus, this.frightenedStatus)
       if (this.frightenedStatus === 'Y') {
         this.chaseStatus = 'N'
-        this.scatterStatus = 'N'
         this.whereToGo = []
         if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
           this.specialTiles()
@@ -409,18 +408,35 @@ function init() {
         squares[this.currentIndex].classList.add('frightened')
 
         this.frightenedTime++
-
         if (this.frightenedTime > 12) {
+
           this.frightenedStatus = 'N'
-          this.frightenedTime = 0
+          this.chaseStatus = 'Y'
+
+          switch (this.name) {
+            case 'red':
+              redChaseTimer()
+              break
+            case 'blue':
+              blueChaseTimer()
+              break
+            case 'orange':
+              orangeChaseTimer()
+              break
+            case 'pink':
+              pinkChaseTimer()
+              break
+          }
+          checkDeathTimer()
           squares.forEach(square => square.classList.remove('frightened'))
+          this.frightenedTime = 0
         }
       }
     }
     checkGhostCapture() {
       if (this.frightenedStatus === 'Y') {
         if (pacMan.currentIndex === this.currentIndex || ((pacMan.currentIndex === this.previousIndex) && (pacMan.previousIndex === this.currentIndex))) {
-          this.captureStatus = 'Y'
+          this.inPenOrNot = 'Y'
           score += (200 * (Math.pow(2, ghostsInPenArray.length)))
           ghostsInPenArray.push(this.name)
           squares[this.previousIndex].classList.remove('frightened')
@@ -428,16 +444,17 @@ function init() {
         }
       }
     }
-    keepGhostInPen () {
-      if (this.captureStatus === 'Y') {
+    checkInPenOrNot () {
+      if (this.inPenOrNot === 'Y') {
         this.currentIndex = this.penPosition
         squares.forEach(square => square.classList.remove(this.name))
         squares[this.currentIndex].classList.add(this.name)
         squares[this.currentIndex].classList.add('frightened')
         this.captureTime++
         if (this.captureTime > 1000) { 
-          this.captureStatus = 'N'
+          this.inPenOrNot = 'N'
           this.captureTime = 0
+          this.chaseStatus = 'Y'
         }
       }
     }
@@ -452,6 +469,11 @@ function init() {
       this.targetColumnPink = null
       this.targetRowBlue = null
       this.targetColumnBlue = null
+      this.captureTime = 0
+      this.frightenedTime = 0
+      this.frightenedStatus = 'N'
+      this.inPenOrNot = 'N'
+      this.chaseStatus = 'Y'
     }
     automaticMovement () {
       switch (this.currentIndex) {
@@ -597,30 +619,27 @@ function init() {
     window.addEventListener('keydown', pacMan.handleKeyDown)
   }
 
-  function ghostMovement () {
-    if ((ghostArray.filter(eachGhost => eachGhost.frightenedStatus === 'Y')).length === 0) {
-      ghostTime += (ghostSpeed / 1000)
-      if (((ghostTime * (1000 / ghostSpeed)) % (20 * (1000 / ghostSpeed))) < (7 * (1000 / ghostSpeed))) {
-        for (const eachGhost of ghostArray) {
-          eachGhost.scatterStatus = 'Y'
-          eachGhost.chaseStatus = 'N'
-          eachGhost.scatter()
-        }
-      } else {
-        for (const eachGhost of ghostArray) {
-          eachGhost.scatterStatus = 'N'
-          eachGhost.chaseStatus = 'Y'
-          eachGhost.chase()
-        }
-      }
-    }
+  function redGhostChase () {
+    redGhost.chase()
   }
 
-  // ONGOING CHECKING FUNCTIONS
+  function blueGhostChase () {
+    blueGhost.chase()
+  }
 
-  function checkDeath () {
+  function orangeGhostChase () {
+    orangeGhost.chase()
+  }
+
+  function pinkGhostChase () {
+    pinkGhost.chase()
+  }
+
+  // ONGOING FUNCTIONS
+
+  function checkDeathAll () {
     for (const eachGhost of ghostArray) {
-      if ((eachGhost.chaseStatus === 'Y' || eachGhost.scatterStatus === 'Y') && ((pacMan.currentIndex === eachGhost.currentIndex) || ((pacMan.currentIndex === eachGhost.previousIndex) && (pacMan.previousIndex === eachGhost.currentIndex)))) {
+      if (eachGhost.chaseStatus === 'Y' && ((pacMan.currentIndex === eachGhost.currentIndex) || ((pacMan.currentIndex === eachGhost.previousIndex) && (pacMan.previousIndex === eachGhost.currentIndex)))) {
         window.removeEventListener('keydown', pacMan.handleKeyDown)
         clearInterval(timerId2)
         clearInterval(timerId3)
@@ -632,6 +651,9 @@ function init() {
         clearInterval(timerId9)
         clearInterval(timerId10)
         clearInterval(timerId11)
+        clearInterval(timerId12)
+        clearInterval(timerId13)
+        clearInterval(timerId14)
         squares.forEach(square => square.classList.remove('pacman'))
         squares.forEach(square => square.classList.remove('red'))
         squares.forEach(square => square.classList.remove('blue'))
@@ -643,12 +665,11 @@ function init() {
         for (const eachGhost of ghostArray) {
           eachGhost.currentIndex = eachGhost.startingIndex
           eachGhost.currentDirection = eachGhost.startingDirection
-          eachGhost.scatterStatus = 'Y'
-          eachGhost.chaseStatus = 'N'
-          eachGhost.frightenedStatus = 'N'
-          eachGhost.frightenedTime = 0
-          eachGhost.captureStatus = 'N'
           eachGhost.captureTime = 0
+          eachGhost.frightenedTime = 0
+          eachGhost.frightenedStatus = 'N'
+          eachGhost.inPenOrNot = 'N'
+          eachGhost.chaseStatus = 'Y'
         }
         squares[pacMan.currentIndex].classList.add('pacman')
         squares[pacMan.currentIndex].classList.add('half')
@@ -657,9 +678,8 @@ function init() {
         squares[orangeGhost.currentIndex].classList.add('orange')
         squares[pinkGhost.currentIndex].classList.add('pink')
         lives--
-        countDownTime = 3
-        ghostTime = 0
         if (lives >= 0) {
+          countDownTime = 3
           livesDisplay.innerHTML = `${lives} lives left`
           startTimer()
         } else {
@@ -675,6 +695,7 @@ function init() {
           }
           level = 1
           score = 0
+          countDownTime = 3
           lives = 2
           window.addEventListener('keydown', spaceDown)
         }
@@ -696,24 +717,25 @@ function init() {
       clearInterval(timerId9)
       clearInterval(timerId10)
       clearInterval(timerId11)
+      clearInterval(timerId12)
+      clearInterval(timerId13)
+      clearInterval(timerId14)
       squares.forEach(square => square.classList.remove('pacman'))
       squares.forEach(square => square.classList.remove('red'))
       squares.forEach(square => square.classList.remove('blue'))
       squares.forEach(square => square.classList.remove('orange'))
       squares.forEach(square => square.classList.remove('pink'))
-      pacMan.currentIndex = pacMan.startingIndex
-      pacMan.currentDirection = pacMan.startingDirection
-      pacMan.proposedDirection = pacMan.startingDirection
-      for (const eachGhost of ghostArray) {
-        eachGhost.currentIndex = eachGhost.startingIndex
-        eachGhost.currentDirection = eachGhost.startingDirection
-        eachGhost.scatterStatus = 'Y'
-        eachGhost.chaseStatus = 'N'
-        eachGhost.frightenedStatus = 'N'
-        eachGhost.frightenedTime = 0
-        eachGhost.captureStatus = 'N'
-        eachGhost.captureTime = 0
-      }
+      pacMan.currentIndex = 658
+      pacMan.currentDirection = -1
+      pacMan.proposedDirection = -1
+      redGhost.currentIndex = 322
+      redGhost.currentDirection = 1
+      blueGhost.currentIndex = 405
+      blueGhost.currentDirection = -28
+      orangeGhost.currentIndex = 406
+      orangeGhost.currentDirection = -28
+      pinkGhost.currentIndex = 407
+      pinkGhost.currentDirection = -21
       squares[pacMan.currentIndex].classList.add('pacman')
       squares[pacMan.currentIndex].classList.add('half')
       squares[redGhost.currentIndex].classList.add('red')
@@ -721,10 +743,16 @@ function init() {
       squares[orangeGhost.currentIndex].classList.add('orange')
       squares[pinkGhost.currentIndex].classList.add('pink')
       countDownTime = 3
-      ghostTime = 0
-      level++
       ghostSpeed -= 10
+      level++
       levelDisplay.innerHTML = level
+      for (const eachGhost in ghostArray) {
+        eachGhost.captureTime = 0
+        eachGhost.frightenedTime = 0
+        eachGhost.frightenedStatus = 'N'
+        eachGhost.inPenOrNot = 'N'
+        eachGhost.chaseStatus = 'Y'
+      }
       for (let i = 0; i < width * height; i++) {
         if (wallsArray[i] === 'F' || wallsArray[i] === 'X') {
           squares[i].classList.add('food')
@@ -742,14 +770,24 @@ function init() {
       squares[pacMan.currentIndex].classList.remove('energizer')
       squares[pacMan.currentIndex].classList.remove('flash')
       
+      clearInterval(timerId3)
+      clearInterval(timerId4)
+      clearInterval(timerId5)
+      clearInterval(timerId6)
+      clearInterval(timerId7)
+      
       for (const eachGhost of ghostArray) {
         if (eachGhost.frightenedTime === 0) {
           eachGhost.frightenedStatus = 'Y'
-        } else if (eachGhost.frightenedTime > 0 && eachGhost.frightenedTime <= 15 && eachGhost.captureStatus === 'N') {
+        } else if (eachGhost.frightenedTime > 0 && eachGhost.frightenedTime <= 15 && eachGhost.inPenOrNot === 'N') {
           eachGhost.frightenedTime = 0
         }
       }
     }
+  }
+
+  function scatterModeAll () {
+    ghostArray.forEach(ghost =>)
   }
 
   function checkGhostsFrightenedAll () {
@@ -760,13 +798,13 @@ function init() {
     ghostArray.forEach(ghost => ghost.checkGhostCapture())
   }
 
-  function keepGhostInPenAll () {
-    ghostArray.forEach(ghost => ghost.keepGhostInPen())
+  function checkGhostInPenAll () {
+    ghostArray.forEach(ghost => ghost.checkInPenOrNot())
   }
 
   function checkPenStyle () {
     for (const eachGhost of ghostArray) {
-      if (eachGhost.captureStatus === 'N') {
+      if (eachGhost.inPenOrNot === 'N') {
         squares[eachGhost.penPosition].classList.remove('frightened')
       }
     }
@@ -774,7 +812,7 @@ function init() {
 
   function controlGhostsInPenArray () {
     for (const eachGhost of ghostArray) {
-      if (ghostsInPenArray.includes(eachGhost.name) && eachGhost.captureStatus === 'N') {
+      if (ghostsInPenArray.includes(eachGhost.name) && eachGhost.inPenOrNot === 'N') {
         ghostsInPenArray.splice(ghostsInPenArray.indexOf(eachGhost.name), 1)
       }
     }
@@ -800,16 +838,20 @@ function init() {
       countDownTime--
     } else if (countDownTime === 0) {
       countdownDisplay.innerHTML = 'go!'
-      playerMoveTimer()
-      ghostMovementTimer()
+      playerTimer()
+      // redChaseTimer()
+      // blueChaseTimer()
+      // orangeChaseTimer()
+      // pinkChaseTimer()
       checkDeathTimer()
-      checkLevelUpTimer()
-      checkEnergizerTimer()
+      levelUpTimer()
+      energizerTimer()
       checkGhostFrightenedTimer()
       checkGhostCaptureTimer()
       penTimer()
       checkPenStyleTimer()
       controlGhostsInPenArrayTimer()
+      gameTimer()
       window.removeEventListener('keydown', spaceDown)
       countDownTime--
     } else if (countDownTime <= -1) {
@@ -823,45 +865,73 @@ function init() {
     }
   }
 
-  function playerMoveTimer () {
+  function playerTimer () {
     timerId2 = setInterval(playerMove, playerSpeed)
   }
 
-  function ghostMovementTimer () {
-    timerId3 = setInterval(ghostMovement, ghostSpeed)
+  function redChaseTimer () {
+    timerId3 = setInterval(redGhostChase, ghostSpeed)
+  }
+
+  function blueChaseTimer () {
+    timerId4 = setInterval(blueGhostChase, ghostSpeed)
+  }
+
+  function orangeChaseTimer () {
+    timerId5 = setInterval(orangeGhostChase, ghostSpeed)
+  }
+
+  function pinkChaseTimer () {
+    timerId6 = setInterval(pinkGhostChase, ghostSpeed)
   }
 
   function checkDeathTimer () {
-    timerId4 = setInterval(checkDeath)
+    timerId7 = setInterval(checkDeathAll)
   }
   
-  function checkLevelUpTimer () {
-    timerId5 = setInterval(checkLevelUp)
+  function levelUpTimer () {
+    timerId8 = setInterval(checkLevelUp)
   }
 
-  function checkEnergizerTimer () {
-    timerId6 = setInterval(checkEnergizer)
+  function energizerTimer () {
+    timerId9 = setInterval(checkEnergizer)
   }
 
   function checkGhostFrightenedTimer () {
-    timerId7 = setInterval(checkGhostsFrightenedAll, ghostSpeed * 3)
+    timerId10 = setInterval(checkGhostsFrightenedAll, ghostSpeed * 3)
   }
 
   function checkGhostCaptureTimer () {
-    timerId8 = setInterval(checkGhostCaptureAll)
+    timerId11 = setInterval(checkGhostCaptureAll)
   }
 
   function penTimer () {
-    timerId9 = setInterval(keepGhostInPenAll, 1)
+    timerId12 = setInterval(checkGhostInPenAll, 1)
   }
 
   function checkPenStyleTimer () {
-    timerId10 = setInterval(checkPenStyle)
+    timerId13 = setInterval(checkPenStyle)
   }
 
   function controlGhostsInPenArrayTimer () {
-    timerId11 = setInterval(controlGhostsInPenArray)
+    timerId14 = setInterval(controlGhostsInPenArray)
   }
+
+  function gameTimer () {
+    timerId15 = setInterval(gameTimeFunction, ghostSpeed)
+  }
+
+  function gameTimeFunction () {
+    gameTime += (ghostSpeed / 1000)
+
+    if (((gameTime * (1000 / ghostSpeed)) % (20 * (1000 / ghostSpeed))) < (7 * (1000 / ghostSpeed))) {
+      
+    }
+  }
+
+  // function checkScatterOrChase () {
+  //   if 
+  // }
 
   // EVENT HANDLERS
 
