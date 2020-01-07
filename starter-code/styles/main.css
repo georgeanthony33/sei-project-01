@@ -22,7 +22,7 @@ div.container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 0 0 0;
+  padding: 15px 0 0 0;
   height: 100vh;
 }
 
@@ -42,17 +42,20 @@ div.upper-panel {
 }
 
 h2 {
-  font-size: 14px;
-  margin: 5px 0 0 0;
+  font-size: 13px;
+  margin: 0px 0 0 0;
+}
+
+div.countdown {
+  position: relative;
+  top: 304px;
+  z-index: 1;
 }
 
 h2.countdown {
-  position: relative;
-  top: 304px;
   color: yellow;
   font-weight: 900;
   font-size: 13px;
-  z-index: 1;
 }
 
 h2.countdown.hidden {
@@ -81,65 +84,65 @@ div.wall {
 }
 
 div.wall.top {
-  border-top: rgb(0, 4, 255) 5px solid;
-  top: 6px;
+  border-top: rgb(0, 4, 255) 3px solid;
+  top: 7px;
 }
 
 div.wall.bottom {
-  border-bottom: rgb(0, 4, 255) 5px solid;
-  bottom: 6px;
+  border-bottom: rgb(0, 4, 255) 3px solid;
+  bottom: 7px;
 }
 
 div.wall.right {
-  border-right: rgb(0, 4, 255) 5px solid;
-  right: 6px;
+  border-right: rgb(0, 4, 255) 3px solid;
+  right: 7px;
 }
 
 div.wall.left {
-  border-left: rgb(0, 4, 255) 5px solid;
-  left: 6px;
+  border-left: rgb(0, 4, 255) 3px solid;
+  left: 7px;
 }
 
 div.wall.right.bottom.inner {
-  border-bottom: rgb(0, 4, 255) 5px solid;
-  border-right: rgb(0, 4, 255) 5px solid;
+  border-bottom: rgb(0, 4, 255) 3px solid;
+  border-right: rgb(0, 4, 255) 3px solid;
   border-top: none;
   border-left: none;
-  bottom: 6px;
-  right: 6px;
+  bottom: 7px;
+  right: 7px;
 }
 
 div.wall.right.top.inner {
-  border-top: rgb(0, 4, 255) 5px solid;
-  border-right: rgb(0, 4, 255) 5px solid;
+  border-top: rgb(0, 4, 255) 3px solid;
+  border-right: rgb(0, 4, 255) 3px solid;
   border-bottom: none;
   border-left: none;
-  top: 6px;
-  right: 6px;
+  top: 7px;
+  right: 7px;
 }
 
 div.wall.left.bottom.inner {
-  border-bottom: rgb(0, 4, 255) 5px solid;
-  border-left: rgb(0, 4, 255) 5px solid;
+  border-bottom: rgb(0, 4, 255) 3px solid;
+  border-left: rgb(0, 4, 255) 3px solid;
   border-top: none;
   border-right: none;
-  bottom: 6px;
-  right: -6px;
+  bottom: 7px;
+  right: -7px;
 }
 
 div.wall.left.top.inner {
-  border-top: rgb(0, 4, 255) 5px solid;
-  border-left: rgb(0, 4, 255) 5px solid;
+  border-top: rgb(0, 4, 255) 3px solid;
+  border-left: rgb(0, 4, 255) 3px solid;
   border-bottom: none;
   border-right: none;
-  bottom: -6px;
-  right: -6px;
+  bottom: -7px;
+  right: -7px;
 }
 
 div.door {
   position: relative;
-  border-top: rgb(247, 162, 188) 5px solid;
-  top: 6px;
+  border-top: rgb(247, 162, 188) 3px solid;
+  top: 7px;
 }
 
 div.grid-item.food {
@@ -148,6 +151,7 @@ div.grid-item.food {
   width: 5px;
   height: 5px;
   margin: 6px;
+  z-index: 1;
 }
 
 div.grid-item.energizer {
@@ -157,6 +161,10 @@ div.grid-item.energizer {
   height: 13px;
   margin: 2px;
   z-index: 1;
+}
+
+div.grid-item.energizer.hidden {
+  visibility: hidden;
 }
 
 div.grid-item.energizer.flash {
@@ -170,9 +178,6 @@ div.grid-item.energizer.flash {
   70% { opacity: 0; }
   80% { opacity: 1; }
   100% { opacity: 1; }
-  /* 0% {background-color: red;}
-  50% {visibility: hidden;}
-  100% {background-color: green;} */
 }
 
 div.grid-item.pacman {
@@ -186,6 +191,190 @@ div.grid-item.pacman {
   transform: rotate(180deg) scale(1.3, 1.3);
 }
 
+
+
+/* LEFT FIRST */
+
+
+
+div.grid-item.leftleft {
+  animation: leftleft 1s infinite linear;
+}
+
+@keyframes leftleft {
+  0% { transform: rotate(180deg) scale(1.3, 1.3) translateX(-13.07692px); }
+  50% { transform: rotate(180deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  100% { transform: rotate(180deg) scale(1.3, 1.3) translateX(0px); }
+}
+
+div.grid-item.leftup {
+  animation: leftup 1s infinite linear;
+}
+
+@keyframes leftup {
+  0% { transform: rotate(180deg) scale(1.3, 1.3) translateX(-13.07692px); }
+  50% { transform: rotate (225deg) scale(1.3, 1.3) translateX(-6.53846); }
+  100% { transform: rotate(270deg) scale(1.3, 1.3) translateX(0px); }
+}
+
+div.grid-item.leftright {
+  animation: leftright 1s infinite linear;
+}
+
+@keyframes leftright {
+  0% { transform: rotate(180deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(180deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(0deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.leftdown {
+  animation: leftdown 1s infinite linear;
+}
+
+@keyframes leftdown {
+  0% { transform: rotate(180deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(180deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(90deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+
+/* UP FIRST */
+
+
+div.grid-item.upleft {
+  animation: upleft 1s infinite linear;
+}
+
+@keyframes upleft {
+  0% { transform: rotate(270deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(270deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(180deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.upup {
+  animation: upup 1s infinite linear;
+}
+
+@keyframes upup {
+  0% { transform: rotate(270deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(270deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(270deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.upright {
+  animation: upright 1s infinite linear;
+}
+
+@keyframes upright {
+  0% { transform: rotate(270deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(270deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(0deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.updown {
+  animation: updown 1s infinite linear;
+}
+
+@keyframes updown {
+  0% { transform: rotate(270deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(270deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(90deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+
+/* RIGHT FIRST */
+
+
+div.grid-item.rightleft {
+  animation: rightleft 1s infinite linear;
+}
+
+@keyframes rightleft {
+  0% { transform: rotate(0deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(0deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(180deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.rightup {
+  animation: rightup 1s infinite linear;
+}
+
+@keyframes rightup {
+  0% { transform: rotate(0deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(0deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(270deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.rightright {
+  animation: rightright 1s infinite linear;
+}
+
+@keyframes rightright {
+  0% { transform: rotate(0deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(0deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(0deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.rightdown {
+  animation: rightdown 1s infinite linear;
+}
+
+@keyframes rightdown {
+  0% { transform: rotate(0deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(0deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(90deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+
+/* DOWN FIRST */
+
+
+div.grid-item.downleft {
+  animation: downleft 1s infinite linear;
+}
+
+@keyframes downleft {
+  0% { transform: rotate(90deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(90deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(180deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.downup {
+  animation: downup 1s infinite linear;
+}
+
+@keyframes downup {
+  0% { transform: rotate(90deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(90deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(270deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.downright {
+  animation: downright 1s infinite linear;
+}
+
+@keyframes downright {
+  0% { transform: rotate(90deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(90deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(0deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+div.grid-item.downdown {
+  animation: downdown 1s infinite linear;
+}
+
+@keyframes downdown {
+  0% { transform: rotate(90deg) scale(1.3, 1.3) translateX(-6.53846px); }
+  50% { transform: rotate(90deg) scale(1.3, 1.3) translateX(0); }
+  100% { transform: rotate(90deg) scale(1.3, 1.3) translateX(6.53846px); }
+}
+
+
+
+
+
+
+
 div.grid-item.pacman.closed {
   clip-path: polygon(68% 2%, 50% 0, 31% 3%, 14% 14%, 3% 30%, 0 51%, 3% 73%, 14% 88%, 28% 96%, 48% 100%, 64% 98%, 82% 90%, 93% 77%, 98% 61%, 40% 51%, 98% 41%, 94% 23%, 84% 9%);
 }
@@ -196,22 +385,6 @@ div.grid-item.pacman.half {
 
 div.grid-item.pacman.open {
   clip-path: polygon(51% 0, 36% 2%, 22% 8%, 11% 17%, 3% 31%, 0% 48%, 2% 64%, 8% 78%, 19% 89%, 33% 96%, 51% 100%, 69% 97%, 76% 93%, 82% 88%, 40% 51%, 82% 9%, 74% 4%, 65% 1%);
-}
-
-div.grid-item.pacman.rotate0 {
-  transform: rotate(0deg) scale(1.3, 1.3);
-}
-
-div.grid-item.pacman.rotate90 {
-  transform: rotate(90deg) scale(1.3, 1.3);
-}
-
-div.grid-item.pacman.rotate180 {
-  transform: rotate(180deg) scale(1.3, 1.3);
-}
-
-div.grid-item.pacman.rotate270 {
-  transform: rotate(270deg) scale(1.3, 1.3);
 }
 
 div.grid-item.red {
@@ -370,11 +543,57 @@ div.grid-item.frightened {
   background-color: rgba(7, 51, 246, 0.842);
 }
 
-div.lives-left {
-  margin: 10px 0 0 0;
+div.lower-panel {
   display: flex;
+  justify-content: space-between;
+  margin: 5px 0 0 0;
+  min-width: 500px;
 }
 
-h2#lives-left.hidden {
+div.lower-left {
+  flex-grow: 1;
+}
+
+div.lives-left {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  left: 30px;
+  width: 50px;
+  height: 17px;
+}
+
+div.life {
+  border-radius: 50%;
+  width: 17px;
+  height: 17px;
+  margin: 0px 4px;
+  z-index: 2;
+  transform-origin: 50% 50%;
+  transform: rotate(180deg) scale(1.15, 1.15);
+  clip-path: polygon(51% 0, 36% 2%, 22% 8%, 11% 17%, 3% 31%, 0% 48%, 2% 64%, 8% 78%, 19% 89%, 33% 96%, 51% 100%, 69% 97%, 82% 90%, 95% 78%, 40% 51%, 96% 21%, 83% 8%, 68% 1%);
+  background-color: yellow;
+}
+
+div.restart-message {
+  display: flex;
+  justify-content: center;
+  margin: 3px 0 0 0;
+  flex-grow: 1;
+}
+
+h2.restart-message.flash {
+  animation: flash 1s infinite;
+}
+
+h2.restart-message.hidden {
   visibility: hidden;
+}
+
+div.lower-right {
+  flex-grow: 1;
+}
+
+div.fruit {
+  width: 50px;
 }

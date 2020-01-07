@@ -6,7 +6,8 @@ function init() {
   const highScoreDisplay = document.querySelector('h2#high-score')
   const grid = document.querySelector('.grid') // grab grid div from HTML
   const countdownDisplay = document.querySelector('h2.countdown')
-  const livesDisplay = document.querySelector('h2#lives-left')
+  const livesDisplay = document.querySelector('div.lives-left')
+  const restartMessage = document.querySelector('h2.restart-message')
 
   // GAME VARIABLES
   const squares = [] // squares within grid
@@ -19,23 +20,22 @@ function init() {
     '28': 'top',
     '-28': 'bottom'
   }
+  let livesArray = []
   const pacManMouthArray = ['half', 'open', 'half', 'closed']
   const ghostsInPenArray = []
 
   let level = 1
   let score = 0
   let highScore = 0
-  let lives = 2 // initial lives -> die if lives < 0
+  let lives = 2
+  let livesDisplayArray = [1, 1]
 
   // SET INITIAL DOM VARIABLES
   levelDisplay.innerHTML = level
   currentScoreDisplay.innerHTML = '00'
   highScoreDisplay.innerHTML = '00'
   countdownDisplay.innerHTML = 'hit space'
-  livesDisplay.innerHTML = `${lives} lives left`
   
-  // const timerArray = [timerId1, timerId2, timerId3, timerId4, timerId5, timerId6, timerId7, timerId8, timerId9, timerId10, timerId11]
-
   // TIMER VARIABLES
   let timerId1 = null
   let timerId2 = null
@@ -52,8 +52,8 @@ function init() {
   let ghostTime = 0
 
   // SPEED VARIABLES
-  const playerSpeed = 150
-  let ghostSpeed = 200
+  let playerSpeed = null
+  let ghostSpeed = null
 
   // wallsArray constants
   const F = 'F' // food
@@ -184,9 +184,45 @@ function init() {
     }
   }
 
+  // for (let i = 0; i < 40; i++) {
+  //   switch (wallsArray[i]) {
+  //     case F:
+  //       squares[i].classList.add('food')
+  //       break
+  //     case X:
+  //       squares[i].classList.add('food')
+  //       break
+  //     case E:
+  //       squares[i].classList.add('energizer')
+  //       break
+  //     case Y:
+  //       squares[i].classList.add('energizer')
+  //       break
+  //   }
+  // }
+
+  function updateLives () {
+    livesDisplay.innerHTML = ''
+    livesDisplayArray.forEach(() => {
+      const life = document.createElement('div')
+      life.classList.add('life')
+      livesArray.push(life)
+      livesDisplay.appendChild(life)
+    })
+  }
+
+  function updateSpeeds () {
+    playerSpeed = Math.max((156 - (level * 6)), 120)
+    ghostSpeed = playerSpeed * 1.1
+  }
+
+  updateLives()
+  updateSpeeds()
+  playerSpeed = 1000
+
   // create Ghost class with properties and movement method
   class Characters {
-    constructor(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection, penPosition) {
+    constructor(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection, penPosition, scatterTargetIndex) {
       this.name = name // colour of ghost
       this.startingIndex = startingIndex
       this.startingDirection = startingDirection
@@ -194,6 +230,9 @@ function init() {
       this.currentIndex = currentIndex // current position
       this.currentDirection = currentDirection, // current direction
       this.penPosition = penPosition
+      this.scatterTargetIndex = scatterTargetIndex
+      this.scatterTargetRow = Math.ceil((this.scatterTargetIndex + 1) / width)
+      this.scatterTargetColumn = ((this.scatterTargetIndex + 1) % width) === 0 ? width : ((this.scatterTargetIndex + 1) % width)
       this.currentRow = Math.ceil((this.currentIndex + 1) / width)
       this.currentColumn = ((this.currentIndex + 1) % width) === 0 ? width : ((this.currentIndex + 1) % width)
       this.distanceBetween = Math.sqrt((this.rowDifference ** 2) + (this.columnDifference ** 2))
@@ -284,14 +323,18 @@ function init() {
       this.whereToGo = []
       this.whereToGo.push(shortestDirection)
     }
-    pinkSmartMove () {
+    blueSmartMove () {
       const smartDirectionsArray = []
+      const redToTarget1RowDifference = redGhost.currentRow - pacMan.targetRowBlue
+      const redToTarget1ColumnDifference = redGhost.currentColumn - pacMan.targetColumnBlue
+      const target2Row = redGhost.currentRow - (redToTarget1RowDifference * 2)
+      const target2Column = redGhost.currentColumn - (redToTarget1ColumnDifference * 2)
       for (const eachDirection of this.whereToGo) {
         const potentialSmartPos = this.currentIndex + eachDirection
         const potentialSmartRow = Math.ceil((potentialSmartPos + 1) / width)
         const potentialSmartColumn = ((potentialSmartPos + 1) % width) === 0 ? width : ((potentialSmartPos + 1) % width)
-        const smartRowDifference = potentialSmartRow - pacMan.targetRowPink
-        const smartColumnDifference = potentialSmartColumn - pacMan.targetColumnPink
+        const smartRowDifference = potentialSmartRow - target2Row
+        const smartColumnDifference = potentialSmartColumn - target2Column
         const potentialDistance = Math.sqrt((smartRowDifference ** 2) + (smartColumnDifference ** 2))
         smartDirectionsArray.push(potentialDistance)
       }
@@ -305,18 +348,24 @@ function init() {
       this.whereToGo = []
       this.whereToGo.push(shortestDirection)
     }
-    blueSmartMove () {
+    orangeSmartMove () {
+      const currentRowDifference = this.currentRow - pacMan.currentRow
+      const currentColumnDifference = this.currentColumn - pacMan.currentColumn
+      const currentDistance = Math.sqrt((currentRowDifference ** 2) + (currentColumnDifference ** 2))
+      if (currentDistance > 8) {
+        this.redSmartMove()
+      } else {
+        this.scatter()
+      }
+    }
+    pinkSmartMove () {
       const smartDirectionsArray = []
-      const redToTarget1RowDifference = redGhost.currentRow - pacMan.targetRowBlue
-      const redToTarget1ColumnDifference = redGhost.currentColumn - pacMan.targetColumnBlue
-      const target2Row = redGhost.currentRow - (redToTarget1RowDifference * 2)
-      const target2Column = redGhost.currentColumn - (redToTarget1ColumnDifference * 2)
       for (const eachDirection of this.whereToGo) {
         const potentialSmartPos = this.currentIndex + eachDirection
         const potentialSmartRow = Math.ceil((potentialSmartPos + 1) / width)
         const potentialSmartColumn = ((potentialSmartPos + 1) % width) === 0 ? width : ((potentialSmartPos + 1) % width)
-        const smartRowDifference = potentialSmartRow - target2Row
-        const smartColumnDifference = potentialSmartColumn - target2Column
+        const smartRowDifference = potentialSmartRow - pacMan.targetRowPink
+        const smartColumnDifference = potentialSmartColumn - pacMan.targetColumnPink
         const potentialDistance = Math.sqrt((smartRowDifference ** 2) + (smartColumnDifference ** 2))
         smartDirectionsArray.push(potentialDistance)
       }
@@ -344,9 +393,13 @@ function init() {
       squares.forEach(square => square.classList.remove(this.name))
       squares[this.currentIndex].classList.add(this.name)
     }
-    storeCoordinates (position) {
+    storeCurrentCoordinates (position) {
       this.currentRow = Math.ceil((position + 1) / width)
       this.currentColumn = ((position + 1) % width) === 0 ? width : ((position + 1) % width)
+    }
+    storeScatterTarget () {
+      this.scatterRow = Math.ceil((this.scatterTargetIndex + 1) / width)
+      this.scatterColumn = ((this.scatterTargetIndex + 1) % width) === 0 ? width : ((this.scatterTargetIndex + 1) % width)
     }
     scatter () {
       if (this.scatterStatus === 'Y') {
@@ -355,19 +408,32 @@ function init() {
           this.specialTiles()
         } else {
           this.standardTiles()
-          // if (this.name === 'red') {
-          //   this.redScatter()
-          // } else if (this.name === 'pink') {
-          //   this.pinkScatter()
-          // } else if (this.name === 'blue') {
-          //   this.blueScatter()
-          // } else if (this.name === 'orange') {
-          //   this.orangeScatter()
-          // }
+          this.storeScatterTarget()
+
+          const smartDirectionsArray = []
+          for (const eachDirection of this.whereToGo) {
+            const potentialSmartPos = this.currentIndex + eachDirection
+            const potentialSmartRow = Math.ceil((potentialSmartPos + 1) / width)
+            const potentialSmartColumn = ((potentialSmartPos + 1) % width) === 0 ? width : ((potentialSmartPos + 1) % width)
+            const smartRowDifference = potentialSmartRow - this.scatterRow
+            const smartColumnDifference = potentialSmartColumn - this.scatterColumn
+            const potentialDistance = Math.sqrt((smartRowDifference ** 2) + (smartColumnDifference ** 2))
+            smartDirectionsArray.push(potentialDistance)
+          }
+          let lowest = 0
+          for (let i = 0; i < smartDirectionsArray.length; i++) {
+            if (smartDirectionsArray[i] < smartDirectionsArray[lowest]) {
+              lowest = i
+            }
+          }
+          const shortestDirection = this.whereToGo[lowest]
+          this.whereToGo = []
+          this.whereToGo.push(shortestDirection)
+
           this.chooseDirection()
         }
         this.updateGrid()
-        this.storeCoordinates(this.currentIndex)
+        this.storeCurrentCoordinates(this.currentIndex)
       }
     }
     chase () {
@@ -379,19 +445,20 @@ function init() {
           this.standardTiles()
           if (this.name === 'red') {
             this.redSmartMove()
-          } else if (this.name === 'pink') {
-            this.pinkSmartMove()
           } else if (this.name === 'blue') {
             this.blueSmartMove()
+          } else if (this.name === 'orange') {
+            this.orangeSmartMove()
+          } else if (this.name === 'pink') {
+            this.pinkSmartMove()
           }
           this.chooseDirection()
         }
         this.updateGrid()
-        this.storeCoordinates(this.currentIndex)
+        this.storeCurrentCoordinates(this.currentIndex)
       }
     }
     frightened() {
-      console.log(this.scatterStatus, this.chaseStatus, this.frightenedStatus)
       if (this.frightenedStatus === 'Y') {
         this.chaseStatus = 'N'
         this.scatterStatus = 'N'
@@ -403,14 +470,14 @@ function init() {
           this.chooseDirection()
         }
         this.updateGrid()
-        this.storeCoordinates(this.currentIndex)
+        this.storeCurrentCoordinates(this.currentIndex)
 
         squares[this.previousIndex].classList.remove('frightened')
         squares[this.currentIndex].classList.add('frightened')
 
         this.frightenedTime++
 
-        if (this.frightenedTime > 12) {
+        if (this.frightenedTime > (1.5 * (14 - level))) {
           this.frightenedStatus = 'N'
           this.frightenedTime = 0
           squares.forEach(square => square.classList.remove('frightened'))
@@ -435,7 +502,7 @@ function init() {
         squares[this.currentIndex].classList.add(this.name)
         squares[this.currentIndex].classList.add('frightened')
         this.captureTime++
-        if (this.captureTime > 1000) { 
+        if (this.captureTime > 1000 * ((13 - level) / 12)) { 
           this.captureStatus = 'N'
           this.captureTime = 0
         }
@@ -448,12 +515,15 @@ function init() {
       super(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection)
       this.proposedDirection = proposedDirection
       this.pacManMouthArrayIndex = pacManMouthArrayIndex
+      this.previousDirection = null
       this.targetRowPink = null
       this.targetColumnPink = null
       this.targetRowBlue = null
       this.targetColumnBlue = null
     }
     automaticMovement () {
+      this.previousDirection = this.currentDirection
+      
       switch (this.currentIndex) {
         case 392:
           switch (this.currentDirection) {
@@ -500,7 +570,7 @@ function init() {
 
       this.currentIndex += this.currentDirection
 
-      this.storeCoordinates(this.currentIndex)
+      this.storeCurrentCoordinates(this.currentIndex)
       this.pinkTargetCoordinates(this.currentIndex, this.currentDirection, 4)
       this.blueTargetCoordinates(this.currentIndex, this.currentDirection, 2)
 
@@ -524,24 +594,81 @@ function init() {
       squares.forEach(square => square.classList.remove(pacManMouthArray[this.pacManMouthArrayIndex % 4]))
       squares[this.currentIndex].classList.add(this.name)
       squares[this.currentIndex].classList.add(pacManMouthArray[this.pacManMouthArrayIndex % 4])
-      switch (this.currentDirection) {
-        case 1:
-          squares[this.currentIndex].classList.add('rotate0')
-          break
+      
+      console.log(this.previousDirection, this.currentDirection)
+
+      switch (this.previousDirection) {
         case -1:
-          squares[this.currentIndex].classList.add('rotate180')
-          break
-        case 28:
-          squares[this.currentIndex].classList.add('rotate90')
+          switch (this.currentDirection) {
+            case -1:
+              squares[this.currentIndex].classList.add('leftleft')
+              break
+            case 1:
+              squares[this.currentIndex].classList.add('leftright')
+              break
+            case 28:
+              squares[this.currentIndex].classList.add('leftdown')
+              break
+            case -28:
+              squares[this.currentIndex].classList.add('leftup')
+              break
+          }
           break
         case -28:
-          squares[this.currentIndex].classList.add('rotate270')
+          switch (this.currentDirection) {
+            case -1:
+              squares[this.currentIndex].classList.add('upleft')
+              break
+            case 1:
+              squares[this.currentIndex].classList.add('upright')
+              break
+            case 28:
+              squares[this.currentIndex].classList.add('updown')
+              break
+            case -28:
+              squares[this.currentIndex].classList.add('upup')
+              break
+          }
+          break
+        case 1:
+          switch (this.currentDirection) {
+            case -1:
+              squares[this.currentIndex].classList.add('rightleft')
+              break
+            case 1:
+              squares[this.currentIndex].classList.add('rightright')
+              break
+            case 28:
+              squares[this.currentIndex].classList.add('rightdown')
+              break
+            case -28:
+              squares[this.currentIndex].classList.add('rightup')
+              break
+          }
+          break
+        case 28:
+          switch (this.currentDirection) {
+            case -1:
+              squares[this.currentIndex].classList.add('downleft')
+              break
+            case 1:
+              squares[this.currentIndex].classList.add('downright')
+              break
+            case 28:
+              squares[this.currentIndex].classList.add('downdown')
+              break
+            case -28:
+              squares[this.currentIndex].classList.add('downup')
+              break
+          }
           break
       }
-      squares[this.previousIndex].classList.remove('rotate0')
-      squares[this.previousIndex].classList.remove('rotate90')
-      squares[this.previousIndex].classList.remove('rotate180')
-      squares[this.previousIndex].classList.remove('rotate270')
+      if (this.currentIndex !== this.previousIndex) {
+        squares[this.previousIndex].classList.remove('leftleft')
+        squares[this.previousIndex].classList.remove('leftup')
+        squares[this.previousIndex].classList.remove('leftright')
+        squares[this.previousIndex].classList.remove('leftdown')
+      }
       this.pacManMouthArrayIndex++
       currentScoreDisplay.innerHTML = score
     }
@@ -570,22 +697,27 @@ function init() {
       this.targetRowBlue = Math.ceil((targetPosition + 1) / width)
       this.targetColumnBlue = ((targetPosition + 1) % width) === 0 ? width : ((targetPosition + 1) % width)
     }
+    orangeTargetCoordinates (position, direction, tilesAhead) {
+      const targetPosition = position + (tilesAhead * direction)
+      this.targetRowBlue = Math.ceil((targetPosition + 1) / width)
+      this.targetColumnBlue = ((targetPosition + 1) % width) === 0 ? width : ((targetPosition + 1) % width)
+    }
   }
   
   const pacMan = new Player('pacman', 658, -1, 659, 658, -1, -1, 0)
   squares[pacMan.currentIndex].classList.add('pacman')
   squares[pacMan.currentIndex].classList.add('half') // put pacman in starting position
   
-  const redGhost = new Characters('red', 322, 1, 321, 322, 1, 404)
+  const redGhost = new Characters('red', 322, 1, 321, 322, 1, 404, 24)
   squares[redGhost.currentIndex].classList.add('red')
 
-  const blueGhost = new Characters('blue', 405, -28, 432, 405, -28, 405)
+  const blueGhost = new Characters('blue', 405, -28, 432, 405, -28, 405, 866)
   squares[blueGhost.currentIndex].classList.add('blue')
 
-  const orangeGhost = new Characters('orange', 406, -28, 433, 406, -28, 406)
+  const orangeGhost = new Characters('orange', 406, -28, 433, 406, -28, 406, 841)
   squares[orangeGhost.currentIndex].classList.add('orange')
 
-  const pinkGhost = new Characters('pink', 407, -1, 408, 407, -1, 407)
+  const pinkGhost = new Characters('pink', 407, -1, 408, 407, -1, 407, 3)
   squares[pinkGhost.currentIndex].classList.add('pink')
 
   const ghostArray = [redGhost, blueGhost, orangeGhost, pinkGhost]
@@ -598,9 +730,11 @@ function init() {
   }
 
   function ghostMovement () {
+    const chaseDuration = 18 + (level * 2)
+    const scatterDuration = Math.max(8 - level, 0)
     if ((ghostArray.filter(eachGhost => eachGhost.frightenedStatus === 'Y')).length === 0) {
       ghostTime += (ghostSpeed / 1000)
-      if (((ghostTime * (1000 / ghostSpeed)) % (20 * (1000 / ghostSpeed))) < (7 * (1000 / ghostSpeed))) {
+      if (((ghostTime * (1000 / ghostSpeed)) % (chaseDuration * (1000 / ghostSpeed))) < (scatterDuration * (1000 / ghostSpeed))) {
         for (const eachGhost of ghostArray) {
           eachGhost.scatterStatus = 'Y'
           eachGhost.chaseStatus = 'N'
@@ -657,13 +791,17 @@ function init() {
         squares[orangeGhost.currentIndex].classList.add('orange')
         squares[pinkGhost.currentIndex].classList.add('pink')
         lives--
+        livesDisplayArray.pop()
+        updateLives()
         countDownTime = 3
         ghostTime = 0
         if (lives >= 0) {
-          livesDisplay.innerHTML = `${lives} lives left`
           startTimer()
         } else {
-          livesDisplay.innerHTML = 'hit space to restart'
+          restartMessage.classList.remove('hidden')
+          restartMessage.innerHTML = 'hit space to restart'
+          restartMessage.classList.add('flash')
+          countdownDisplay.classList.remove('hidden')
           countdownDisplay.innerHTML = 'GAME OVER'
           countdownDisplay.classList.add('game-over')
           for (let i = 0; i < width * height; i++) {
@@ -673,6 +811,7 @@ function init() {
               squares[i].classList.add('energizer')
             }
           }
+          livesDisplayArray = [1, 1]
           level = 1
           score = 0
           lives = 2
@@ -683,7 +822,7 @@ function init() {
   }
 
   function checkLevelUp () {
-    const foodLeft = squares.filter(square => square.classList.contains('food'))
+    const foodLeft = squares.filter(square => square.classList.contains('food') || square.classList.contains('energizer'))
     if (foodLeft.length === 0) {
       window.removeEventListener('keydown', pacMan.handleKeyDown)
       clearInterval(timerId2)
@@ -723,8 +862,8 @@ function init() {
       countDownTime = 3
       ghostTime = 0
       level++
-      ghostSpeed -= 10
       levelDisplay.innerHTML = level
+      updateSpeeds()
       for (let i = 0; i < width * height; i++) {
         if (wallsArray[i] === 'F' || wallsArray[i] === 'X') {
           squares[i].classList.add('food')
@@ -788,7 +927,6 @@ function init() {
 
   function countDownTimer () {
     countdownDisplay.classList.remove('hidden')
-    countdownDisplay.classList.remove('game-over')
     if (countDownTime >= 3) {
       countdownDisplay.innerHTML = 'three'
       countDownTime--
@@ -801,7 +939,7 @@ function init() {
     } else if (countDownTime === 0) {
       countdownDisplay.innerHTML = 'go!'
       playerMoveTimer()
-      ghostMovementTimer()
+      // ghostMovementTimer()
       checkDeathTimer()
       checkLevelUpTimer()
       checkEnergizerTimer()
@@ -844,7 +982,7 @@ function init() {
   }
 
   function checkGhostFrightenedTimer () {
-    timerId7 = setInterval(checkGhostsFrightenedAll, ghostSpeed * 3)
+    timerId7 = setInterval(checkGhostsFrightenedAll, ghostSpeed * 2)
   }
 
   function checkGhostCaptureTimer () {
@@ -869,10 +1007,14 @@ function init() {
 
   function spaceDown (e) {
     if (e.keyCode === 32) {
+      updateLives()
       startTimer()
       levelDisplay.innerHTML = level
       currentScoreDisplay.innerHTML = '00'
-      livesDisplay.innerHTML = `${lives} lives left`
+      restartMessage.classList.remove('flash')
+      restartMessage.classList.add('hidden')
+      countdownDisplay.classList.remove('game-over')
+      countdownDisplay.classList.add('hidden')
     }
   }
 
