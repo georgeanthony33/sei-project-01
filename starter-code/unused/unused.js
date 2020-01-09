@@ -251,3 +251,70 @@ closingIn () {
     console.log('yes', this.whereToGo)
   }
 }
+
+switch (this.previousDirection) {
+  case -1:
+    switch (this.currentDirection) {
+      case -1:
+        squares[this.currentIndex].classList.add('leftleft')
+        break
+      case 1:
+        squares[this.currentIndex].classList.add('leftright')
+        break
+      case 28:
+        squares[this.currentIndex].classList.add('leftdown')
+        break
+      case -28:
+        squares[this.currentIndex].classList.add('leftup')
+        break
+    }
+    break
+  case -28:
+    switch (this.currentDirection) {
+      case -1:
+        squares[this.currentIndex].classList.add('upleft')
+        break
+      case 1:
+        squares[this.currentIndex].classList.add('upright')
+        break
+      case 28:
+        squares[this.currentIndex].classList.add('updown')
+        break
+      case -28:
+        squares[this.currentIndex].classList.add('upup')
+        break
+    }
+    break
+  case 1:
+    switch (this.currentDirection) {
+      case -1:
+        squares[this.currentIndex].classList.add('rightleft')
+        break
+      case 1:
+        squares[this.currentIndex].classList.add('rightright')
+        break
+      case 28:
+        squares[this.currentIndex].classList.add('rightdown')
+        break
+      case -28:
+        squares[this.currentIndex].classList.add('rightup')
+        break
+    }
+    break
+  case 28:
+    switch (this.currentDirection) {
+      case -1:
+        squares[this.currentIndex].classList.add('downleft')
+        break
+      case 1:
+        squares[this.currentIndex].classList.add('downright')
+        break
+      case 28:
+        squares[this.currentIndex].classList.add('downdown')
+        break
+      case -28:
+        squares[this.currentIndex].classList.add('downup')
+        break
+    }
+    break
+}

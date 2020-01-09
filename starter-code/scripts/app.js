@@ -13,13 +13,13 @@ function init() {
   const squares = [] // squares within grid
   const width = 28 // number of squares across
   const height = 31 // number of squares down
-  const directionArray = [1, -1, 28, -28, 27, -27] // down, up, right, left, left hole to right hole, right hole to left hole
-  const directionObject = {
-    '-1': 'right',
-    '1': 'left',
-    '28': 'top',
-    '-28': 'bottom'
+  const playerDirectionObject = {
+    '-1': '180deg',
+    '1': '0deg',
+    '28': '90deg',
+    '-28': '270deg'
   }
+
   let livesArray = []
   const pacManMouthArray = ['half', 'open', 'half', 'closed']
   const ghostsInPenArray = []
@@ -211,16 +211,15 @@ function init() {
     })
   }
 
-  function updateSpeeds () {
+  function updateSpeeds (multiplier) {
     playerSpeed = Math.max((156 - (level * 6)), 120)
-    ghostSpeed = playerSpeed * 1.1
+    ghostSpeed = playerSpeed * 1.1 * multiplier
+    document.documentElement.style.setProperty('--ghostspeed', `${ghostSpeed / 1000}s`)
+    document.documentElement.style.setProperty('--playerspeed', `${playerSpeed / 1000}s`)
   }
 
   updateLives()
-  updateSpeeds()
-  playerSpeed = 1000
-
-  // create Ghost class with properties and movement method
+  
   class Characters {
     constructor(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection, penPosition, scatterTargetIndex) {
       this.name = name // colour of ghost
@@ -228,7 +227,7 @@ function init() {
       this.startingDirection = startingDirection
       this.previousIndex = previousIndex // previous position
       this.currentIndex = currentIndex // current position
-      this.currentDirection = currentDirection, // current direction
+      this.currentDirection = currentDirection // current direction
       this.penPosition = penPosition
       this.scatterTargetIndex = scatterTargetIndex
       this.scatterTargetRow = Math.ceil((this.scatterTargetIndex + 1) / width)
@@ -258,7 +257,7 @@ function init() {
       } else {
         this.currentDirection = 0
       }
-      if (this.currentIndex === 392) { // if ghost is crossing hole in the wall, make sure it continues correctly
+      if (this.currentIndex === 392) { // if ghost is crossing tunnel in the wall, make sure it continues correctly
         switch (this.currentDirection) {
           case -1:
             this.currentDirection = 27
@@ -267,7 +266,7 @@ function init() {
             this.currentDirection = 1
             break
         }
-      } else if (this.currentIndex === 419) { // if ghost is crossing hole in the wall, make sure it continues correctly
+      } else if (this.currentIndex === 419) { // if ghost is crossing tunnel in the wall, make sure it continues correctly
         switch (this.currentDirection) {
           case 1:
             this.currentDirection = -27
@@ -280,21 +279,14 @@ function init() {
     }
     standardTiles () {
       // Rules for normal tiles, nextAlong is the next position the ghost would be in if it follows same direction
-
       const nextAlong = this.currentIndex + this.currentDirection
-
-      this.directionArray = [1, -1, 28, -28].concat(this.whereToGo)
-
+      this.directionArray = [1, -1, 28, -28]
       this.whereToGo = []
-
       // If there is no wall in same direction the ghost is already going, then remove opposite direction from options
-
       this.openSquares = [F, X, E, Y, N, Z]
-
       if (openSquares.includes(wallsArray[nextAlong])) {
         this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== ((-1) * (this.currentDirection)))
       }
-
       for (const eachDirection of this.directionArray) { // loop through all options left of where ghost can go
         const potentialPos = this.currentIndex + eachDirection
         if (openSquares.includes(wallsArray[potentialPos])) {
@@ -391,7 +383,36 @@ function init() {
       this.previousIndex = this.currentIndex - this.currentDirection
       
       squares.forEach(square => square.classList.remove(this.name))
+      squares[this.previousIndex].classList.remove('ghost')
       squares[this.currentIndex].classList.add(this.name)
+      squares[this.currentIndex].classList.add('ghost')
+      this.characterAnimation()
+    }
+    characterAnimation () {
+      squares[this.previousIndex].classList.remove('left')
+      squares[this.previousIndex].classList.remove('up')
+      squares[this.previousIndex].classList.remove('right')
+      squares[this.previousIndex].classList.remove('down')
+      switch (this.currentDirection) {
+        case -1:
+          squares[this.currentIndex].classList.add('left')
+          break
+        case 1:
+          squares[this.currentIndex].classList.add('right')
+          break
+        case -28:
+          squares[this.currentIndex].classList.add('up')
+          break
+        case 28:
+          squares[this.currentIndex].classList.add('down')
+          break
+        case 27:
+          squares[this.currentIndex].classList.add('left')
+          break
+        case -27:
+          squares[this.currentIndex].classList.add('right')
+          break
+      }
     }
     storeCurrentCoordinates (position) {
       this.currentRow = Math.ceil((position + 1) / width)
@@ -438,7 +459,6 @@ function init() {
     }
     chase () {
       if (this.chaseStatus === 'Y') {
-        this.whereToGo = []
         if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
           this.specialTiles()
         } else {
@@ -460,9 +480,9 @@ function init() {
     }
     frightened() {
       if (this.frightenedStatus === 'Y') {
+        updateSpeeds(2)
         this.chaseStatus = 'N'
         this.scatterStatus = 'N'
-        this.whereToGo = []
         if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
           this.specialTiles()
         } else {
@@ -477,7 +497,8 @@ function init() {
 
         this.frightenedTime++
 
-        if (this.frightenedTime > (1.5 * (14 - level))) {
+        if (this.frightenedTime > (2 * (14 - level))) {
+          updateSpeeds(1)
           this.frightenedStatus = 'N'
           this.frightenedTime = 0
           squares.forEach(square => square.classList.remove('frightened'))
@@ -490,6 +511,7 @@ function init() {
           this.captureStatus = 'Y'
           score += (200 * (Math.pow(2, ghostsInPenArray.length)))
           ghostsInPenArray.push(this.name)
+          squares[this.currentIndex].classList.remove('ghost')
           squares[this.previousIndex].classList.remove('frightened')
           squares[this.currentIndex].classList.remove('frightened')
         }
@@ -499,12 +521,16 @@ function init() {
       if (this.captureStatus === 'Y') {
         this.currentIndex = this.penPosition
         squares.forEach(square => square.classList.remove(this.name))
+        squares[this.previousIndex].classList.remove('ghost')
         squares[this.currentIndex].classList.add(this.name)
+        squares[this.currentIndex].classList.add('ghost')
         squares[this.currentIndex].classList.add('frightened')
         this.captureTime++
         if (this.captureTime > 1000 * ((13 - level) / 12)) { 
           this.captureStatus = 'N'
           this.captureTime = 0
+          squares[this.currentIndex].classList.add('frightened')
+          squares[this.previousIndex].classList.add('frightened')
         }
       }
     }
@@ -520,6 +546,21 @@ function init() {
       this.targetColumnPink = null
       this.targetRowBlue = null
       this.targetColumnBlue = null
+    }
+    pacManAnimation () {
+      if (this.currentIndex === this.previousIndex) {
+        squares[this.currentIndex].classList.remove('moving')
+        squares[this.currentIndex].classList.remove('left')
+        squares[this.currentIndex].classList.remove('up')
+        squares[this.currentIndex].classList.remove('right')
+        squares[this.currentIndex].classList.remove('down')
+        squares[this.currentIndex].classList.add('stationary')
+        this.currentDirection = this.previousDirection
+        document.documentElement.style.setProperty('--rotation', playerDirectionObject[this.currentDirection])
+      } else {
+        squares[this.previousIndex].classList.remove('moving')
+        squares[this.currentIndex].classList.add('moving')
+      }
     }
     automaticMovement () {
       this.previousDirection = this.currentDirection
@@ -594,81 +635,10 @@ function init() {
       squares.forEach(square => square.classList.remove(pacManMouthArray[this.pacManMouthArrayIndex % 4]))
       squares[this.currentIndex].classList.add(this.name)
       squares[this.currentIndex].classList.add(pacManMouthArray[this.pacManMouthArrayIndex % 4])
-      
-      console.log(this.previousDirection, this.currentDirection)
 
-      switch (this.previousDirection) {
-        case -1:
-          switch (this.currentDirection) {
-            case -1:
-              squares[this.currentIndex].classList.add('leftleft')
-              break
-            case 1:
-              squares[this.currentIndex].classList.add('leftright')
-              break
-            case 28:
-              squares[this.currentIndex].classList.add('leftdown')
-              break
-            case -28:
-              squares[this.currentIndex].classList.add('leftup')
-              break
-          }
-          break
-        case -28:
-          switch (this.currentDirection) {
-            case -1:
-              squares[this.currentIndex].classList.add('upleft')
-              break
-            case 1:
-              squares[this.currentIndex].classList.add('upright')
-              break
-            case 28:
-              squares[this.currentIndex].classList.add('updown')
-              break
-            case -28:
-              squares[this.currentIndex].classList.add('upup')
-              break
-          }
-          break
-        case 1:
-          switch (this.currentDirection) {
-            case -1:
-              squares[this.currentIndex].classList.add('rightleft')
-              break
-            case 1:
-              squares[this.currentIndex].classList.add('rightright')
-              break
-            case 28:
-              squares[this.currentIndex].classList.add('rightdown')
-              break
-            case -28:
-              squares[this.currentIndex].classList.add('rightup')
-              break
-          }
-          break
-        case 28:
-          switch (this.currentDirection) {
-            case -1:
-              squares[this.currentIndex].classList.add('downleft')
-              break
-            case 1:
-              squares[this.currentIndex].classList.add('downright')
-              break
-            case 28:
-              squares[this.currentIndex].classList.add('downdown')
-              break
-            case -28:
-              squares[this.currentIndex].classList.add('downup')
-              break
-          }
-          break
-      }
-      if (this.currentIndex !== this.previousIndex) {
-        squares[this.previousIndex].classList.remove('leftleft')
-        squares[this.previousIndex].classList.remove('leftup')
-        squares[this.previousIndex].classList.remove('leftright')
-        squares[this.previousIndex].classList.remove('leftdown')
-      }
+      this.characterAnimation()
+      this.pacManAnimation()
+      
       this.pacManMouthArrayIndex++
       currentScoreDisplay.innerHTML = score
     }
@@ -709,15 +679,19 @@ function init() {
   squares[pacMan.currentIndex].classList.add('half') // put pacman in starting position
   
   const redGhost = new Characters('red', 322, 1, 321, 322, 1, 404, 24)
+  squares[redGhost.currentIndex].classList.add('ghost')
   squares[redGhost.currentIndex].classList.add('red')
 
   const blueGhost = new Characters('blue', 405, -28, 432, 405, -28, 405, 866)
+  squares[blueGhost.currentIndex].classList.add('ghost')
   squares[blueGhost.currentIndex].classList.add('blue')
 
   const orangeGhost = new Characters('orange', 406, -28, 433, 406, -28, 406, 841)
+  squares[orangeGhost.currentIndex].classList.add('ghost')
   squares[orangeGhost.currentIndex].classList.add('orange')
 
   const pinkGhost = new Characters('pink', 407, -1, 408, 407, -1, 407, 3)
+  squares[pinkGhost.currentIndex].classList.add('ghost')
   squares[pinkGhost.currentIndex].classList.add('pink')
 
   const ghostArray = [redGhost, blueGhost, orangeGhost, pinkGhost]
@@ -771,6 +745,7 @@ function init() {
         squares.forEach(square => square.classList.remove('blue'))
         squares.forEach(square => square.classList.remove('orange'))
         squares.forEach(square => square.classList.remove('pink'))
+        squares.forEach(square => square.classList.remove('ghost'))
         pacMan.currentIndex = pacMan.startingIndex
         pacMan.currentDirection = pacMan.startingDirection
         pacMan.proposedDirection = pacMan.startingDirection
@@ -787,9 +762,13 @@ function init() {
         squares[pacMan.currentIndex].classList.add('pacman')
         squares[pacMan.currentIndex].classList.add('half')
         squares[redGhost.currentIndex].classList.add('red')
+        squares[redGhost.currentIndex].classList.add('ghost')
         squares[blueGhost.currentIndex].classList.add('blue')
+        squares[blueGhost.currentIndex].classList.add('ghost')
         squares[orangeGhost.currentIndex].classList.add('orange')
+        squares[orangeGhost.currentIndex].classList.add('ghost')
         squares[pinkGhost.currentIndex].classList.add('pink')
+        squares[pinkGhost.currentIndex].classList.add('ghost')
         lives--
         livesDisplayArray.pop()
         updateLives()
@@ -824,6 +803,47 @@ function init() {
   function checkLevelUp () {
     const foodLeft = squares.filter(square => square.classList.contains('food') || square.classList.contains('energizer'))
     if (foodLeft.length === 0) {
+      setTimeout(() => {
+        squares.forEach(square => square.classList.remove('pacman'))
+        squares.forEach(square => square.classList.remove('red'))
+        squares.forEach(square => square.classList.remove('blue'))
+        squares.forEach(square => square.classList.remove('orange'))
+        squares.forEach(square => square.classList.remove('pink'))
+        squares.forEach(square => square.classList.remove('ghost'))
+        pacMan.currentIndex = pacMan.startingIndex
+        pacMan.currentDirection = pacMan.startingDirection
+        pacMan.proposedDirection = pacMan.startingDirection
+        for (const eachGhost of ghostArray) {
+          eachGhost.currentIndex = eachGhost.startingIndex
+          eachGhost.currentDirection = eachGhost.startingDirection
+          eachGhost.scatterStatus = 'Y'
+          eachGhost.chaseStatus = 'N'
+          eachGhost.frightenedStatus = 'N'
+          eachGhost.frightenedTime = 0
+          eachGhost.captureStatus = 'N'
+          eachGhost.captureTime = 0
+        }
+        squares[pacMan.currentIndex].classList.add('pacman')
+        squares[pacMan.currentIndex].classList.add('half')
+        squares[redGhost.currentIndex].classList.add('red')
+        squares[redGhost.currentIndex].classList.add('ghost')
+        squares[blueGhost.currentIndex].classList.add('blue')
+        squares[blueGhost.currentIndex].classList.add('ghost')
+        squares[orangeGhost.currentIndex].classList.add('orange')
+        squares[orangeGhost.currentIndex].classList.add('ghost')
+        squares[pinkGhost.currentIndex].classList.add('pink')
+        squares[pinkGhost.currentIndex].classList.add('ghost')
+        countDownTime = 3
+        levelDisplay.innerHTML = level
+        for (let i = 0; i < width * height; i++) {
+          if (wallsArray[i] === 'F' || wallsArray[i] === 'X') {
+            squares[i].classList.add('food')
+          } else if (wallsArray[i] === 'E' || wallsArray[i] === 'Y') {
+            squares[i].classList.add('energizer')
+          }
+        }
+        startTimer()  
+      }, playerSpeed * 2)
       window.removeEventListener('keydown', pacMan.handleKeyDown)
       clearInterval(timerId2)
       clearInterval(timerId3)
@@ -835,43 +855,20 @@ function init() {
       clearInterval(timerId9)
       clearInterval(timerId10)
       clearInterval(timerId11)
-      squares.forEach(square => square.classList.remove('pacman'))
-      squares.forEach(square => square.classList.remove('red'))
-      squares.forEach(square => square.classList.remove('blue'))
-      squares.forEach(square => square.classList.remove('orange'))
-      squares.forEach(square => square.classList.remove('pink'))
-      pacMan.currentIndex = pacMan.startingIndex
-      pacMan.currentDirection = pacMan.startingDirection
-      pacMan.proposedDirection = pacMan.startingDirection
+      squares.forEach(square => square.classList.remove('moving'))
+      console.log(pacMan.previousDirection)
+      pacMan.currentDirection = pacMan.previousDirection
+      squares[pacMan.currentIndex].classList.add('stationary')
+      document.documentElement.style.setProperty('--rotation', playerDirectionObject[this.currentDirection])
+      document.querySelector('div.grid-item.pacman.stationary').style.transform = 'scale(1.3, 1.3)'
       for (const eachGhost of ghostArray) {
-        eachGhost.currentIndex = eachGhost.startingIndex
-        eachGhost.currentDirection = eachGhost.startingDirection
-        eachGhost.scatterStatus = 'Y'
-        eachGhost.chaseStatus = 'N'
-        eachGhost.frightenedStatus = 'N'
-        eachGhost.frightenedTime = 0
-        eachGhost.captureStatus = 'N'
-        eachGhost.captureTime = 0
+        squares[eachGhost.currentIndex].classList.remove('left')
+        squares[eachGhost.currentIndex].classList.remove('up')
+        squares[eachGhost.currentIndex].classList.remove('right')
+        squares[eachGhost.currentIndex].classList.remove('down')
       }
-      squares[pacMan.currentIndex].classList.add('pacman')
-      squares[pacMan.currentIndex].classList.add('half')
-      squares[redGhost.currentIndex].classList.add('red')
-      squares[blueGhost.currentIndex].classList.add('blue')
-      squares[orangeGhost.currentIndex].classList.add('orange')
-      squares[pinkGhost.currentIndex].classList.add('pink')
-      countDownTime = 3
       ghostTime = 0
       level++
-      levelDisplay.innerHTML = level
-      updateSpeeds()
-      for (let i = 0; i < width * height; i++) {
-        if (wallsArray[i] === 'F' || wallsArray[i] === 'X') {
-          squares[i].classList.add('food')
-        } else if (wallsArray[i] === 'E' || wallsArray[i] === 'Y') {
-          squares[i].classList.add('energizer')
-        }
-      }
-      startTimer()
     }
   }
 
@@ -884,7 +881,7 @@ function init() {
       for (const eachGhost of ghostArray) {
         if (eachGhost.frightenedTime === 0) {
           eachGhost.frightenedStatus = 'Y'
-        } else if (eachGhost.frightenedTime > 0 && eachGhost.frightenedTime <= 15 && eachGhost.captureStatus === 'N') {
+        } else if ((eachGhost.frightenedTime > 0) && (eachGhost.frightenedTime <= (2 * (14 - level))) && (eachGhost.captureStatus === 'N')) {
           eachGhost.frightenedTime = 0
         }
       }
@@ -926,6 +923,7 @@ function init() {
   }
 
   function countDownTimer () {
+    updateSpeeds(1)
     countdownDisplay.classList.remove('hidden')
     if (countDownTime >= 3) {
       countdownDisplay.innerHTML = 'three'
@@ -939,7 +937,7 @@ function init() {
     } else if (countDownTime === 0) {
       countdownDisplay.innerHTML = 'go!'
       playerMoveTimer()
-      // ghostMovementTimer()
+      ghostMovementTimer()
       checkDeathTimer()
       checkLevelUpTimer()
       checkEnergizerTimer()
