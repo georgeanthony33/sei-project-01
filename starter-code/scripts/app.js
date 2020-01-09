@@ -9,6 +9,10 @@ function init() {
   const livesDisplay = document.querySelector('div.lives-left')
   const restartMessage = document.querySelector('h2.restart-message')
 
+  // SOUND VARIABLES
+  var openingSound = new Audio('http://23.237.126.42/ost/pac-man-game-sound-effects/gmiffyvl/Intro.mp3')
+  openingSound.play()
+
   // GAME VARIABLES
   const squares = [] // squares within grid
   const width = 28 // number of squares across
@@ -21,7 +25,6 @@ function init() {
   }
 
   let livesArray = []
-  const pacManMouthArray = ['half', 'open', 'half', 'closed']
   const ghostsInPenArray = []
 
   let level = 1
@@ -35,6 +38,7 @@ function init() {
   currentScoreDisplay.innerHTML = '00'
   highScoreDisplay.innerHTML = '00'
   countdownDisplay.innerHTML = 'hit space'
+  countdownDisplay.classList.add('flash')
   
   // TIMER VARIABLES
   let timerId1 = null
@@ -92,9 +96,9 @@ function init() {
     N,N,N,N,N,1,F,1,2,0,0,8,N,9,8,N,9,0,0,3,1,F,1,N,N,N,N,N,
     N,N,N,N,N,1,F,1,1,Z,N,N,Z,N,N,Z,N,N,Z,1,1,F,1,N,N,N,N,N,
     N,N,N,N,N,1,F,1,1,N,6,0,0,D,D,0,0,7,N,1,1,F,1,N,N,N,N,N,
-    0,0,0,0,0,8,F,9,8,N,1,R,R,U,U,L,L,1,N,9,8,F,9,0,0,0,0,0,
-    N,N,N,N,N,N,X,N,N,Z,1,R,R,U,U,L,L,1,Z,N,N,X,N,N,N,N,N,N,
-    0,0,0,0,0,7,F,6,7,N,1,R,R,U,U,L,L,1,N,6,7,F,6,0,0,0,0,0,
+    0,0,0,0,0,8,F,9,8,N,1,2,0,D,D,0,3,1,N,9,8,F,9,0,0,0,0,0,
+    N,N,N,N,N,N,X,N,N,Z,1,1,R,U,U,L,1,1,Z,N,N,X,N,N,N,N,N,N,
+    0,0,0,0,0,7,F,6,7,N,1,5,0,0,0,0,4,1,N,6,7,F,6,0,0,0,0,0,
     N,N,N,N,N,1,F,1,1,N,9,0,0,0,0,0,0,8,N,1,1,F,1,N,N,N,N,N,
     N,N,N,N,N,1,F,1,1,Z,N,N,N,N,N,N,N,N,Z,1,1,F,1,N,N,N,N,N,
     N,N,N,N,N,1,F,1,1,N,6,0,0,0,0,0,0,7,N,1,1,F,1,N,N,N,N,N,
@@ -497,11 +501,25 @@ function init() {
 
         this.frightenedTime++
 
+        if (this.frightenedTime > ((4 / 3) * (14 - level))) {
+          for (const eachGhost of ghostArray) {
+            if (eachGhost.frightenedStatus === 'Y' && eachGhost.captureStatus === 'N') {
+              if (this.frightenedTime % 2 === 0) {
+                squares[eachGhost.previousIndex].classList.remove('ghost-flash')
+                squares[eachGhost.currentIndex].classList.add('ghost-flash')
+              } else {
+                squares[eachGhost.previousIndex].classList.remove('ghost-flash')
+              }
+            }
+          }
+        }
+
         if (this.frightenedTime > (2 * (14 - level))) {
           updateSpeeds(1)
           this.frightenedStatus = 'N'
           this.frightenedTime = 0
           squares.forEach(square => square.classList.remove('frightened'))
+          squares.forEach(square => square.classList.remove('ghost-flash'))
         }
       }
     }
@@ -537,10 +555,9 @@ function init() {
   }
 
   class Player extends Characters {
-    constructor(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection, proposedDirection, pacManMouthArrayIndex) {
+    constructor(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection, proposedDirection) {
       super(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection)
       this.proposedDirection = proposedDirection
-      this.pacManMouthArrayIndex = pacManMouthArrayIndex
       this.previousDirection = null
       this.targetRowPink = null
       this.targetColumnPink = null
@@ -558,6 +575,7 @@ function init() {
         this.currentDirection = this.previousDirection
         document.documentElement.style.setProperty('--rotation', playerDirectionObject[this.currentDirection])
       } else {
+        squares.forEach(square => square.classList.remove('stationary'))
         squares[this.previousIndex].classList.remove('moving')
         squares[this.currentIndex].classList.add('moving')
       }
@@ -632,14 +650,11 @@ function init() {
         highScoreDisplay.innerHTML = highScore
       }
       squares.forEach(square => square.classList.remove(this.name))
-      squares.forEach(square => square.classList.remove(pacManMouthArray[this.pacManMouthArrayIndex % 4]))
       squares[this.currentIndex].classList.add(this.name)
-      squares[this.currentIndex].classList.add(pacManMouthArray[this.pacManMouthArrayIndex % 4])
 
       this.characterAnimation()
       this.pacManAnimation()
       
-      this.pacManMouthArrayIndex++
       currentScoreDisplay.innerHTML = score
     }
     handleKeyDown(e) {
@@ -676,19 +691,22 @@ function init() {
   
   const pacMan = new Player('pacman', 658, -1, 659, 658, -1, -1, 0)
   squares[pacMan.currentIndex].classList.add('pacman')
-  squares[pacMan.currentIndex].classList.add('half') // put pacman in starting position
+  squares[pacMan.currentIndex].classList.add('stationary') // put pacman in starting position
+  squares[pacMan.currentIndex].classList.add('adjusted')
   
-  const redGhost = new Characters('red', 322, 1, 321, 322, 1, 404, 24)
+  const redGhost = new Characters('red', 322, 1, 321, 322, 1, 405, 24)
   squares[redGhost.currentIndex].classList.add('ghost')
   squares[redGhost.currentIndex].classList.add('red')
+  squares[redGhost.currentIndex].classList.add('adjusted')
 
-  const blueGhost = new Characters('blue', 405, -28, 432, 405, -28, 405, 866)
+  const blueGhost = new Characters('blue', 404, 1, 403, 404, 1, 404, 866)
   squares[blueGhost.currentIndex].classList.add('ghost')
   squares[blueGhost.currentIndex].classList.add('blue')
 
   const orangeGhost = new Characters('orange', 406, -28, 433, 406, -28, 406, 841)
   squares[orangeGhost.currentIndex].classList.add('ghost')
   squares[orangeGhost.currentIndex].classList.add('orange')
+  squares[orangeGhost.currentIndex].classList.add('adjusted')
 
   const pinkGhost = new Characters('pink', 407, -1, 408, 407, -1, 407, 3)
   squares[pinkGhost.currentIndex].classList.add('ghost')
@@ -729,6 +747,32 @@ function init() {
   function checkDeath () {
     for (const eachGhost of ghostArray) {
       if ((eachGhost.chaseStatus === 'Y' || eachGhost.scatterStatus === 'Y') && ((pacMan.currentIndex === eachGhost.currentIndex) || ((pacMan.currentIndex === eachGhost.previousIndex) && (pacMan.previousIndex === eachGhost.currentIndex)))) {
+        
+        for (const eachGhost of ghostArray) {
+          squares[eachGhost.currentIndex].classList.remove('left')
+          squares[eachGhost.currentIndex].classList.remove('right')
+          squares[eachGhost.currentIndex].classList.remove('down')
+          squares[eachGhost.currentIndex].classList.remove('up')
+          if (pacMan.currentIndex === pacMan.previousIndex) {
+            squares[eachGhost.previousIndex].classList.add('ghost')
+            squares[eachGhost.previousIndex].classList.add(eachGhost.name)
+            squares[eachGhost.currentIndex].classList.remove('ghost')
+            squares[eachGhost.currentIndex].classList.remove(eachGhost.name)
+          } else {
+            squares[eachGhost.previousIndex].classList.remove('ghost')
+            squares[eachGhost.previousIndex].classList.remove(eachGhost.name)
+            squares[eachGhost.currentIndex].classList.add('ghost')
+            squares[eachGhost.currentIndex].classList.add(eachGhost.name)
+          }
+        }
+        squares.forEach(square => square.classList.remove('pacman'))
+        squares.forEach(square => square.classList.remove('moving'))
+        this.currentDirection = this.previousDirection
+        document.documentElement.style.setProperty('--rotation', playerDirectionObject[pacMan.currentDirection])
+        squares[pacMan.previousIndex].classList.add('pacman')
+        squares[pacMan.previousIndex].classList.add('stationary')
+        squares[pacMan.previousIndex].classList.add('death')
+
         window.removeEventListener('keydown', pacMan.handleKeyDown)
         clearInterval(timerId2)
         clearInterval(timerId3)
@@ -740,62 +784,85 @@ function init() {
         clearInterval(timerId9)
         clearInterval(timerId10)
         clearInterval(timerId11)
-        squares.forEach(square => square.classList.remove('pacman'))
-        squares.forEach(square => square.classList.remove('red'))
-        squares.forEach(square => square.classList.remove('blue'))
-        squares.forEach(square => square.classList.remove('orange'))
-        squares.forEach(square => square.classList.remove('pink'))
-        squares.forEach(square => square.classList.remove('ghost'))
-        pacMan.currentIndex = pacMan.startingIndex
-        pacMan.currentDirection = pacMan.startingDirection
-        pacMan.proposedDirection = pacMan.startingDirection
-        for (const eachGhost of ghostArray) {
-          eachGhost.currentIndex = eachGhost.startingIndex
-          eachGhost.currentDirection = eachGhost.startingDirection
-          eachGhost.scatterStatus = 'Y'
-          eachGhost.chaseStatus = 'N'
-          eachGhost.frightenedStatus = 'N'
-          eachGhost.frightenedTime = 0
-          eachGhost.captureStatus = 'N'
-          eachGhost.captureTime = 0
-        }
-        squares[pacMan.currentIndex].classList.add('pacman')
-        squares[pacMan.currentIndex].classList.add('half')
-        squares[redGhost.currentIndex].classList.add('red')
-        squares[redGhost.currentIndex].classList.add('ghost')
-        squares[blueGhost.currentIndex].classList.add('blue')
-        squares[blueGhost.currentIndex].classList.add('ghost')
-        squares[orangeGhost.currentIndex].classList.add('orange')
-        squares[orangeGhost.currentIndex].classList.add('ghost')
-        squares[pinkGhost.currentIndex].classList.add('pink')
-        squares[pinkGhost.currentIndex].classList.add('ghost')
-        lives--
+        
         livesDisplayArray.pop()
         updateLives()
         countDownTime = 3
         ghostTime = 0
-        if (lives >= 0) {
-          startTimer()
-        } else {
-          restartMessage.classList.remove('hidden')
-          restartMessage.innerHTML = 'hit space to restart'
-          restartMessage.classList.add('flash')
-          countdownDisplay.classList.remove('hidden')
-          countdownDisplay.innerHTML = 'GAME OVER'
-          countdownDisplay.classList.add('game-over')
-          for (let i = 0; i < width * height; i++) {
-            if (wallsArray[i] === 'F' || wallsArray[i] === 'X') {
-              squares[i].classList.add('food')
-            } else if (wallsArray[i] === 'E' || wallsArray[i] === 'Y') {
-              squares[i].classList.add('energizer')
-            }
+        for (let i = 0; i < width * height; i++) {
+          if (wallsArray[i] === 'E' || wallsArray[i] === 'Y') {
+            squares[i].classList.remove('flash')
           }
-          livesDisplayArray = [1, 1]
-          level = 1
-          score = 0
-          lives = 2
-          window.addEventListener('keydown', spaceDown)
         }
+
+        setTimeout(() => {
+          squares.forEach(square => square.classList.remove('pacman'))
+          squares.forEach(square => square.classList.remove('stationary'))
+          squares.forEach(square => square.classList.remove('death'))
+        }, 900)
+
+        setTimeout(() => {
+          squares.forEach(square => square.classList.remove('red'))
+          squares.forEach(square => square.classList.remove('blue'))
+          squares.forEach(square => square.classList.remove('orange'))
+          squares.forEach(square => square.classList.remove('pink'))
+          squares.forEach(square => square.classList.remove('ghost'))
+          squares.forEach(square => square.classList.remove('frightened'))
+          squares.forEach(square => square.classList.remove('ghost-flash'))
+          pacMan.currentIndex = pacMan.startingIndex
+          pacMan.currentDirection = pacMan.startingDirection
+          pacMan.proposedDirection = pacMan.startingDirection
+          for (const eachGhost of ghostArray) {
+            eachGhost.currentIndex = eachGhost.startingIndex
+            eachGhost.currentDirection = eachGhost.startingDirection
+            eachGhost.scatterStatus = 'Y'
+            eachGhost.chaseStatus = 'N'
+            eachGhost.frightenedStatus = 'N'
+            eachGhost.frightenedTime = 0
+            eachGhost.captureStatus = 'N'
+            eachGhost.captureTime = 0
+          }
+          document.documentElement.style.setProperty('--rotation', playerDirectionObject[pacMan.currentDirection])
+          squares[pacMan.currentIndex].classList.add('pacman')
+          squares[pacMan.currentIndex].classList.add('stationary')
+          squares[redGhost.currentIndex].classList.add('red')
+          squares[redGhost.currentIndex].classList.add('ghost')
+          squares[blueGhost.currentIndex].classList.add('blue')
+          squares[blueGhost.currentIndex].classList.add('ghost')
+          squares[orangeGhost.currentIndex].classList.add('orange')
+          squares[orangeGhost.currentIndex].classList.add('ghost')
+          squares[pinkGhost.currentIndex].classList.add('pink')
+          squares[pinkGhost.currentIndex].classList.add('ghost')
+          squares[pacMan.currentIndex].classList.add('adjusted')
+          squares[redGhost.currentIndex].classList.add('adjusted')
+          squares[orangeGhost.currentIndex].classList.add('adjusted')
+          lives--
+
+          if (lives >= 0) {
+            startTimer()
+          } else {
+            restartMessage.classList.remove('hidden')
+            restartMessage.innerHTML = 'hit space to restart'
+            restartMessage.classList.add('flash')
+            countdownDisplay.classList.remove('hidden')
+            countdownDisplay.innerHTML = 'GAME OVER'
+            countdownDisplay.classList.add('game-over')
+            for (let i = 0; i < width * height; i++) {
+              if (wallsArray[i] === 'F' || wallsArray[i] === 'X') {
+                squares[i].classList.add('food')
+              } else if (wallsArray[i] === 'E' || wallsArray[i] === 'Y') {
+                squares[i].classList.add('energizer')
+              }
+            }
+            livesDisplayArray = [1, 1]
+            level = 1
+            score = 0
+            lives = 2
+            window.addEventListener('keydown', spaceDown)
+          }
+
+        }, 2000)
+
       }
     }
   }
@@ -803,6 +870,39 @@ function init() {
   function checkLevelUp () {
     const foodLeft = squares.filter(square => square.classList.contains('food') || square.classList.contains('energizer'))
     if (foodLeft.length === 0) {
+
+      window.removeEventListener('keydown', pacMan.handleKeyDown)
+      clearInterval(timerId2)
+      clearInterval(timerId3)
+      clearInterval(timerId4)
+      clearInterval(timerId5)
+      clearInterval(timerId6)
+      clearInterval(timerId7)
+      clearInterval(timerId8)
+      clearInterval(timerId9)
+      clearInterval(timerId10)
+      clearInterval(timerId11)
+
+      squares.forEach(square => square.classList.remove('moving'))
+      pacMan.currentDirection = pacMan.previousDirection
+      document.documentElement.style.setProperty('--rotation', playerDirectionObject[pacMan.currentDirection])
+      squares[pacMan.currentIndex].classList.add('stationary')
+      document.querySelector('div.grid-item.pacman.stationary').style.transform = 'scale(1.5, 1.5)'
+      for (const eachGhost of ghostArray) {
+        squares[eachGhost.currentIndex].classList.remove('left')
+        squares[eachGhost.currentIndex].classList.remove('up')
+        squares[eachGhost.currentIndex].classList.remove('right')
+        squares[eachGhost.currentIndex].classList.remove('down')
+      }
+      ghostTime = 0
+      level++
+
+      for (let i = 0; i < width * height; i++) {
+        if (wallsArray[i] === 'E' || wallsArray[i] === 'Y') {
+          squares[i].classList.remove('flash')
+        }
+      }
+
       setTimeout(() => {
         squares.forEach(square => square.classList.remove('pacman'))
         squares.forEach(square => square.classList.remove('red'))
@@ -823,8 +923,9 @@ function init() {
           eachGhost.captureStatus = 'N'
           eachGhost.captureTime = 0
         }
+        document.documentElement.style.setProperty('--rotation', playerDirectionObject[pacMan.currentDirection])
         squares[pacMan.currentIndex].classList.add('pacman')
-        squares[pacMan.currentIndex].classList.add('half')
+        squares[pacMan.currentIndex].classList.add('stationary')
         squares[redGhost.currentIndex].classList.add('red')
         squares[redGhost.currentIndex].classList.add('ghost')
         squares[blueGhost.currentIndex].classList.add('blue')
@@ -833,6 +934,9 @@ function init() {
         squares[orangeGhost.currentIndex].classList.add('ghost')
         squares[pinkGhost.currentIndex].classList.add('pink')
         squares[pinkGhost.currentIndex].classList.add('ghost')
+        squares[pacMan.currentIndex].classList.add('adjusted')
+        squares[redGhost.currentIndex].classList.add('adjusted')
+        squares[orangeGhost.currentIndex].classList.add('adjusted')
         countDownTime = 3
         levelDisplay.innerHTML = level
         for (let i = 0; i < width * height; i++) {
@@ -844,31 +948,7 @@ function init() {
         }
         startTimer()  
       }, playerSpeed * 2)
-      window.removeEventListener('keydown', pacMan.handleKeyDown)
-      clearInterval(timerId2)
-      clearInterval(timerId3)
-      clearInterval(timerId4)
-      clearInterval(timerId5)
-      clearInterval(timerId6)
-      clearInterval(timerId7)
-      clearInterval(timerId8)
-      clearInterval(timerId9)
-      clearInterval(timerId10)
-      clearInterval(timerId11)
-      squares.forEach(square => square.classList.remove('moving'))
-      console.log(pacMan.previousDirection)
-      pacMan.currentDirection = pacMan.previousDirection
-      squares[pacMan.currentIndex].classList.add('stationary')
-      document.documentElement.style.setProperty('--rotation', playerDirectionObject[this.currentDirection])
-      document.querySelector('div.grid-item.pacman.stationary').style.transform = 'scale(1.3, 1.3)'
-      for (const eachGhost of ghostArray) {
-        squares[eachGhost.currentIndex].classList.remove('left')
-        squares[eachGhost.currentIndex].classList.remove('up')
-        squares[eachGhost.currentIndex].classList.remove('right')
-        squares[eachGhost.currentIndex].classList.remove('down')
-      }
-      ghostTime = 0
-      level++
+
     }
   }
 
@@ -924,6 +1004,7 @@ function init() {
 
   function countDownTimer () {
     updateSpeeds(1)
+    countdownDisplay.classList.remove('flash')
     countdownDisplay.classList.remove('hidden')
     if (countDownTime >= 3) {
       countdownDisplay.innerHTML = 'three'
@@ -938,6 +1019,9 @@ function init() {
       countdownDisplay.innerHTML = 'go!'
       playerMoveTimer()
       ghostMovementTimer()
+      squares[pacMan.currentIndex].classList.remove('adjusted')
+      squares[orangeGhost.currentIndex].classList.remove('adjusted')
+      squares[redGhost.currentIndex].classList.remove('adjusted')
       checkDeathTimer()
       checkLevelUpTimer()
       checkEnergizerTimer()
