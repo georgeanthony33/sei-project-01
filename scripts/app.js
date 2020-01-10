@@ -1165,7 +1165,7 @@ function init() {
   }
 
   function removeCaptureScoreTimeout () {
-    timerId13 = setTimeout(removeCaptureScore, 1500)
+    timerId13 = setTimeout(removeCaptureScore, 1000)
   }
 
   // EVENT HANDLERS
