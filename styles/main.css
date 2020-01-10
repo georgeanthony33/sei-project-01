@@ -560,6 +560,102 @@ div.grid-item.ghost::after {
   z-index: 4px;
 }
 
+div.grid-item.ghost.right::before {
+  right: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(at right, black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.ghost.right::after {
+  left: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(at right, black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.ghost.left::before {
+  right: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(at left, black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.ghost.left::after {
+  left: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(at left, black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.ghost.up::before {
+  right: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(at top, black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.ghost.up::after {
+  left: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(at top, black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.ghost.down::before {
+  right: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(at bottom, black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
+div.grid-item.ghost.down::after {
+  left: 10px;
+  top: 5px;
+  position: absolute;
+  background-image: radial-gradient(at bottom, black 0%, black 30%, white 31%);
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  z-index: 4px;
+}
+
 div.grid-item.ghost.left {
   animation: g-left var(--ghostspeed) infinite linear;
 }
@@ -622,6 +718,42 @@ div.grid-item.ghost.frightened.ghost-flash::after {
   background-image: radial-gradient(red 0%, red 30%, white 31%);
 }
 
-div.grid-item.capture-score {
-  background-color: green;
+div.grid-item.capture-score1 {
+  color: rgb(0, 153, 255);
+  font-size: 10px;
+  z-index: 100;
+}
+
+div.grid-item.capture-score1::after {
+  content: '200';
+}
+
+div.grid-item.capture-score2 {
+  color: rgb(0, 153, 255);
+  font-size: 10px;
+  z-index: 100;
+}
+
+div.grid-item.capture-score2::after {
+  content: '400';
+}
+
+div.grid-item.capture-score3 {
+  color: rgb(0, 153, 255);
+  font-size: 10px;
+  z-index: 100;
+}
+
+div.grid-item.capture-score3::after {
+  content: '800';
+}
+
+div.grid-item.capture-score4 {
+  color: rgb(0, 153, 255);
+  font-size: 10px;
+  z-index: 100;
+}
+
+div.grid-item.capture-score4::after {
+  content: '1600';
 }

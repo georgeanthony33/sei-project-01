@@ -199,23 +199,6 @@ function init() {
     }
   }
 
-  // for (let i = 0; i < 40; i++) {
-  //   switch (wallsArray[i]) {
-  //     case F:
-  //       squares[i].classList.add('food')
-  //       break
-  //     case X:
-  //       squares[i].classList.add('food')
-  //       break
-  //     case E:
-  //       squares[i].classList.add('energizer')
-  //       break
-  //     case Y:
-  //       squares[i].classList.add('energizer')
-  //       break
-  //   }
-  // }
-
   function updateLives () {
     livesDisplay.innerHTML = ''
     livesDisplayArray.forEach(() => {
@@ -259,6 +242,7 @@ function init() {
       this.frightenedTime = 0
       this.captureStatus = 'N'
       this.captureTime = 0
+      this.captureIndex = null
     }
     specialTiles () {
       if (this.captureStatus === 'N') {
@@ -541,18 +525,32 @@ function init() {
           playSound(audioLinks['eatGhost'])
 
           this.captureStatus = 'Y'
-          score += (200 * (Math.pow(2, ghostsInPenArray.length)))
+          const ghostCaptureScore = (200 * (Math.pow(2, ghostsInPenArray.length)))
+          score += ghostCaptureScore
           ghostsInPenArray.push(this.name)
           squares[this.currentIndex].classList.remove('ghost')
           squares[this.previousIndex].classList.remove('frightened')
           squares[this.currentIndex].classList.remove('frightened')
-          squares[this.previousIndex].classList.add('capture-score')
-          timerId13 = setTimeout(this.removeCaptureScore, 1000)
+
+          this.captureIndex = this.previousIndex
+          
+          switch (ghostCaptureScore) {
+            case 200:
+              squares[this.captureIndex].classList.add('capture-score1')
+              break
+            case 400:
+              squares[this.captureIndex].classList.add('capture-score2')
+              break
+            case 800:
+              squares[this.captureIndex].classList.add('capture-score3')
+              break
+            case 1600:
+              squares[this.captureIndex].classList.add('capture-score4')
+              break
+          }          
+          removeCaptureScoreTimeout()
         }
       }
-    }
-    removeCaptureScore () {
-      squares[this.previousIndex].classList.remove('capture-score')
     }
     keepGhostInPen () {
       if (this.captureStatus === 'Y') {
@@ -774,6 +772,7 @@ function init() {
 
         playSound(audioLinks['death'])
         pauseSirenSound()
+        pauseChompSound()
         
         for (const eachGhost of ghostArray) {
           squares[eachGhost.currentIndex].classList.remove('left')
@@ -1029,6 +1028,13 @@ function init() {
     }
   }
 
+  function removeCaptureScore () {
+    squares.forEach(square => square.classList.remove('capture-score1'))
+    squares.forEach(square => square.classList.remove('capture-score2'))
+    squares.forEach(square => square.classList.remove('capture-score3'))
+    squares.forEach(square => square.classList.remove('capture-score4'))
+  }
+
   // SOUND FUNCTIONS
 
   function checkPacManChomp () {
@@ -1156,6 +1162,10 @@ function init() {
 
   function checkPacManChompTimer () {
     timerId12 = setInterval(checkPacManChomp, 700)
+  }
+
+  function removeCaptureScoreTimeout () {
+    timerId13 = setTimeout(removeCaptureScore, 1500)
   }
 
   // EVENT HANDLERS
