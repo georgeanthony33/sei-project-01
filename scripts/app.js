@@ -8,10 +8,19 @@ function init() {
   const countdownDisplay = document.querySelector('h2.countdown')
   const livesDisplay = document.querySelector('div.lives-left')
   const restartMessage = document.querySelector('h2.restart-message')
-
+  
   // SOUND VARIABLES
-  var openingSound = new Audio('http://23.237.126.42/ost/pac-man-game-sound-effects/gmiffyvl/Intro.mp3')
-  openingSound.play()
+  const audio = document.createElement('audio')
+  const sirenAudio = document.createElement('audio')
+  const chompAudio = document.createElement('audio')
+  sirenAudio.loop = true
+  chompAudio.loop = true
+  const audioLinks = {
+    intro: 'http://23.237.126.42/ost/pac-man-game-sound-effects/gmiffyvl/Intro.mp3',
+    death: 'http://23.237.126.42/ost/pac-man-game-sound-effects/yfkgsbwu/Death.mp3',
+    eatEnergizer: 'http://23.237.126.42/ost/pac-man-game-sound-effects/kfxtrstc/Fruit.mp3',
+    eatGhost: 'http://23.237.126.42/ost/pac-man-game-sound-effects/zaehkcsz/Ghost.mp3'
+  }
 
   // GAME VARIABLES
   const squares = [] // squares within grid
@@ -52,7 +61,9 @@ function init() {
   let timerId9 = null
   let timerId10 = null
   let timerId11 = null
-  let countDownTime = 0
+  let timerId12 = null
+  let timerId13 = null
+  let countDownTime = 3
   let ghostTime = 0
 
   // SPEED VARIABLES
@@ -526,14 +537,22 @@ function init() {
     checkGhostCapture() {
       if (this.frightenedStatus === 'Y') {
         if (pacMan.currentIndex === this.currentIndex || ((pacMan.currentIndex === this.previousIndex) && (pacMan.previousIndex === this.currentIndex))) {
+
+          playSound(audioLinks['eatGhost'])
+
           this.captureStatus = 'Y'
           score += (200 * (Math.pow(2, ghostsInPenArray.length)))
           ghostsInPenArray.push(this.name)
           squares[this.currentIndex].classList.remove('ghost')
           squares[this.previousIndex].classList.remove('frightened')
           squares[this.currentIndex].classList.remove('frightened')
+          squares[this.previousIndex].classList.add('capture-score')
+          timerId13 = setTimeout(this.removeCaptureScore, 1000)
         }
       }
+    }
+    removeCaptureScore () {
+      squares[this.previousIndex].classList.remove('capture-score')
     }
     keepGhostInPen () {
       if (this.captureStatus === 'Y') {
@@ -563,6 +582,7 @@ function init() {
       this.targetColumnPink = null
       this.targetRowBlue = null
       this.targetColumnBlue = null
+      this.pacManChomping = null
     }
     pacManAnimation () {
       if (this.currentIndex === this.previousIndex) {
@@ -638,16 +658,20 @@ function init() {
       if (squares[this.currentIndex].classList.contains('food')) {
         squares[this.currentIndex].classList.remove('food')
         score += 10
+        this.chomping = 'Y'
         if (score > highScore) {
           highScore = score
         }
         highScoreDisplay.innerHTML = highScore
       } else if (squares[this.currentIndex].classList.contains('energizer')) {
         score += 50
+        this.chomping = 'Y'
         if (score > highScore) {
           highScore = score
         }
         highScoreDisplay.innerHTML = highScore
+      } else if (!squares[this.currentIndex].classList.contains('food') && !squares[this.currentIndex].classList.contains('energizer')) {
+        this.chomping = 'N'
       }
       squares.forEach(square => square.classList.remove(this.name))
       squares[this.currentIndex].classList.add(this.name)
@@ -747,6 +771,9 @@ function init() {
   function checkDeath () {
     for (const eachGhost of ghostArray) {
       if ((eachGhost.chaseStatus === 'Y' || eachGhost.scatterStatus === 'Y') && ((pacMan.currentIndex === eachGhost.currentIndex) || ((pacMan.currentIndex === eachGhost.previousIndex) && (pacMan.previousIndex === eachGhost.currentIndex)))) {
+
+        playSound(audioLinks['death'])
+        pauseSirenSound()
         
         for (const eachGhost of ghostArray) {
           squares[eachGhost.currentIndex].classList.remove('left')
@@ -784,6 +811,7 @@ function init() {
         clearInterval(timerId9)
         clearInterval(timerId10)
         clearInterval(timerId11)
+        clearInterval(timerId12)
         
         livesDisplayArray.pop()
         updateLives()
@@ -871,6 +899,8 @@ function init() {
     const foodLeft = squares.filter(square => square.classList.contains('food') || square.classList.contains('energizer'))
     if (foodLeft.length === 0) {
 
+      pauseSirenSound()
+
       window.removeEventListener('keydown', pacMan.handleKeyDown)
       clearInterval(timerId2)
       clearInterval(timerId3)
@@ -882,6 +912,7 @@ function init() {
       clearInterval(timerId9)
       clearInterval(timerId10)
       clearInterval(timerId11)
+      clearInterval(timerId12)
 
       squares.forEach(square => square.classList.remove('moving'))
       pacMan.currentDirection = pacMan.previousDirection
@@ -955,6 +986,8 @@ function init() {
   function checkEnergizer () {
     if (squares[pacMan.currentIndex].classList.contains('energizer')) {
 
+      playSound(audioLinks['eatEnergizer'])
+
       squares[pacMan.currentIndex].classList.remove('energizer')
       squares[pacMan.currentIndex].classList.remove('flash')
       
@@ -996,9 +1029,45 @@ function init() {
     }
   }
 
+  // SOUND FUNCTIONS
+
+  function checkPacManChomp () {
+    if (pacMan.chomping === 'Y') {
+      playChompSound()
+    } else {
+      pauseChompSound()
+    }
+  }
+
+  function playSirenSound() {
+    sirenAudio.src = 'http://soundfxcenter.com/video-games/pacman/8d82b5_Pacman_Siren_Sound_Effect.mp3'
+    sirenAudio.play()
+  }
+
+  function pauseSirenSound() {
+    sirenAudio.src = 'http://soundfxcenter.com/video-games/pacman/8d82b5_Pacman_Siren_Sound_Effect.mp3'
+    sirenAudio.pause()
+  }
+
+  function playSound(audioLink) {
+    audio.src = audioLink
+    audio.play()
+  }
+
+  function playChompSound() {
+    chompAudio.src = 'http://23.237.126.42/ost/pac-man-game-sound-effects/knwtmadt/Chomp.mp3'
+    chompAudio.play()
+  }
+
+  function pauseChompSound() {
+    chompAudio.src = 'http://23.237.126.42/ost/pac-man-game-sound-effects/knwtmadt/Chomp.mp3'
+    chompAudio.pause()
+  }
+
   // TIMERS
 
   function startTimer () {
+    playSound(audioLinks['intro'])
     timerId1 = setInterval(countDownTimer, 1000)
   }
 
@@ -1019,6 +1088,7 @@ function init() {
       countdownDisplay.innerHTML = 'go!'
       playerMoveTimer()
       ghostMovementTimer()
+      playSirenSound()
       squares[pacMan.currentIndex].classList.remove('adjusted')
       squares[orangeGhost.currentIndex].classList.remove('adjusted')
       squares[redGhost.currentIndex].classList.remove('adjusted')
@@ -1030,6 +1100,7 @@ function init() {
       penTimer()
       checkPenStyleTimer()
       controlGhostsInPenArrayTimer()
+      checkPacManChompTimer()
       window.removeEventListener('keydown', spaceDown)
       countDownTime--
     } else if (countDownTime <= -1) {
@@ -1081,6 +1152,10 @@ function init() {
 
   function controlGhostsInPenArrayTimer () {
     timerId11 = setInterval(controlGhostsInPenArray)
+  }
+
+  function checkPacManChompTimer () {
+    timerId12 = setInterval(checkPacManChomp, 700)
   }
 
   // EVENT HANDLERS
