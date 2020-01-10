@@ -232,7 +232,7 @@ div.wall.left.top.inner {
 
 div.door {
   position: relative;
-  border-top: rgb(247, 162, 188) 3px solid;
+  border-top: #f7a2bc 3px solid;
   top: 7px;
 }
 
@@ -246,7 +246,7 @@ div.grid > div:nth-child(n+377):not(:nth-child(n+381)) {
 }
 
 div.grid > div:nth-child(n+350):not(:nth-child(n+352)) {
-  border-top: rgb(247, 162, 188) 11px solid;
+  border-top: #f7a2bc 11px solid;
 }
 
 div.grid > div:nth-child(381) {
@@ -282,7 +282,7 @@ div.grid > div:nth-child(437) {
 }
 
 div.grid-item.food {
-  background-color: rgb(247, 162, 188);
+  background-color: #f7a2bc;
   border-radius: 100%;
   width: 5px;
   height: 5px;
@@ -291,7 +291,7 @@ div.grid-item.food {
 }
 
 div.grid-item.energizer {
-  background-color: rgb(247, 162, 188);
+  background-color: #f7a2bc;
   border-radius: 100%;
   width: 12px;
   height: 12px;
