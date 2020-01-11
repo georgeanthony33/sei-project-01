@@ -899,6 +899,7 @@ function init() {
     if (foodLeft.length === 0) {
 
       pauseSirenSound()
+      pauseChompSound()
 
       window.removeEventListener('keydown', pacMan.handleKeyDown)
       clearInterval(timerId2)
