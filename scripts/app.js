@@ -16,10 +16,10 @@ function init() {
   sirenAudio.loop = true
   chompAudio.loop = true
   const audioLinks = { // object for playSound function to refer to for audio links
-    intro: 'http://23.237.126.42/ost/pac-man-game-sound-effects/gmiffyvl/Intro.mp3',
-    death: 'http://23.237.126.42/ost/pac-man-game-sound-effects/yfkgsbwu/Death.mp3',
-    eatEnergizer: 'http://23.237.126.42/ost/pac-man-game-sound-effects/kfxtrstc/Fruit.mp3',
-    eatGhost: 'http://23.237.126.42/ost/pac-man-game-sound-effects/zaehkcsz/Ghost.mp3'
+    intro: 'https://vgmdownloads.com/soundtracks/pac-man-game-sound-effects/gmiffyvl/Intro.mp3',
+    death: 'https://vgmdownloads.com/soundtracks/pac-man-game-sound-effects/yfkgsbwu/Death.mp3',
+    eatEnergizer: 'https://vgmdownloads.com/soundtracks/pac-man-game-sound-effects/kfxtrstc/Fruit.mp3',
+    eatGhost: 'https://vgmdownloads.com/soundtracks/pac-man-game-sound-effects/zaehkcsz/Ghost.mp3'
   }
 
   // GAME VARIABLES
@@ -1064,12 +1064,12 @@ function init() {
   }
 
   function playChompSound() {
-    chompAudio.src = 'http://23.237.126.42/ost/pac-man-game-sound-effects/knwtmadt/Chomp.mp3'
+    chompAudio.src = 'https://vgmdownloads.com/soundtracks/pac-man-game-sound-effects/knwtmadt/Chomp.mp3'
     chompAudio.play()
   }
 
   function pauseChompSound() {
-    chompAudio.src = 'http://23.237.126.42/ost/pac-man-game-sound-effects/knwtmadt/Chomp.mp3'
+    chompAudio.src = 'https://vgmdownloads.com/soundtracks/pac-man-game-sound-effects/knwtmadt/Chomp.mp3'
     chompAudio.pause()
   }
 

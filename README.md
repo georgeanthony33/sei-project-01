@@ -1,7 +1,7 @@
 ![ga_cog_large_red_rgb](https://cloud.githubusercontent.com/assets/40461/8183776/469f976e-1432-11e5-8199-6ac91363302b.png)
 
 # Software Engineering Immersive: Project 1
-This was my first project of the General Assembly Software Engineering Immersive course (Week 4). Due to the Festive Period, I was able to spend 15 days working on this solo project.
+This is my first project of the General Assembly Software Engineering Immersive course (Week 4). Due to the Festive Period, I was able to spend 15 days working on this solo project.
 
 ## Installation
 
