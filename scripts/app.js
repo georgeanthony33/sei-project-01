@@ -15,7 +15,7 @@ function init() {
   const chompAudio = document.createElement('audio')
   sirenAudio.loop = true
   chompAudio.loop = true
-  const audioLinks = {
+  const audioLinks = { // object for playSound function to refer to for audio links
     intro: 'http://23.237.126.42/ost/pac-man-game-sound-effects/gmiffyvl/Intro.mp3',
     death: 'http://23.237.126.42/ost/pac-man-game-sound-effects/yfkgsbwu/Death.mp3',
     eatEnergizer: 'http://23.237.126.42/ost/pac-man-game-sound-effects/kfxtrstc/Fruit.mp3',
@@ -26,21 +26,21 @@ function init() {
   const squares = [] // squares within grid
   const width = 28 // number of squares across
   const height = 31 // number of squares down
-  const playerDirectionObject = {
+  const playerDirectionObject = { // for rotation of PacMan
     '-1': '180deg',
     '1': '0deg',
     '28': '90deg',
     '-28': '270deg'
   }
 
-  let livesArray = []
+  const livesArray = [] // for updating Lives
   const ghostsInPenArray = []
 
   let level = 1
   let score = 0
   let highScore = 0
   let lives = 2
-  let livesDisplayArray = [1, 1]
+  let livesDisplayArray = [1, 1] // 1 = life
 
   // SET INITIAL DOM VARIABLES
   levelDisplay.innerHTML = level
@@ -62,9 +62,8 @@ function init() {
   let timerId10 = null
   let timerId11 = null
   let timerId12 = null
-  let timerId13 = null
   let countDownTime = 3
-  let ghostTime = 0
+  let ghostTime = 0 // starts when ghosts can move
 
   // SPEED VARIABLES
   let playerSpeed = null
@@ -210,10 +209,10 @@ function init() {
   }
 
   function updateSpeeds (multiplier) {
-    playerSpeed = Math.max((156 - (level * 6)), 120)
-    ghostSpeed = playerSpeed * 1.1 * multiplier
-    document.documentElement.style.setProperty('--ghostspeed', `${ghostSpeed / 1000}s`)
-    document.documentElement.style.setProperty('--playerspeed', `${playerSpeed / 1000}s`)
+    playerSpeed = Math.max((156 - (level * 6)), 120) // PacMan speed
+    ghostSpeed = playerSpeed * 1.1 * multiplier // ghost speed with multiplier for frightened mode
+    document.documentElement.style.setProperty('--ghostspeed', `${ghostSpeed / 1000}s`) // updates CSS animation speed
+    document.documentElement.style.setProperty('--playerspeed', `${playerSpeed / 1000}s`) // updates CSS animation speed
   }
 
   updateLives()
@@ -223,20 +222,19 @@ function init() {
       this.name = name // colour of ghost
       this.startingIndex = startingIndex
       this.startingDirection = startingDirection
-      this.previousIndex = previousIndex // previous position
-      this.currentIndex = currentIndex // current position
-      this.currentDirection = currentDirection // current direction
+      this.previousIndex = previousIndex
+      this.currentIndex = currentIndex
+      this.currentDirection = currentDirection
       this.penPosition = penPosition
-      this.scatterTargetIndex = scatterTargetIndex
+      this.scatterTargetIndex = scatterTargetIndex // where ghost aims for in scatter mode
       this.scatterTargetRow = Math.ceil((this.scatterTargetIndex + 1) / width)
       this.scatterTargetColumn = ((this.scatterTargetIndex + 1) % width) === 0 ? width : ((this.scatterTargetIndex + 1) % width)
       this.currentRow = Math.ceil((this.currentIndex + 1) / width)
       this.currentColumn = ((this.currentIndex + 1) % width) === 0 ? width : ((this.currentIndex + 1) % width)
-      this.distanceBetween = Math.sqrt((this.rowDifference ** 2) + (this.columnDifference ** 2))
-      this.directionArray = [1, -1, 28, -28, 27, -27], // array of possible directions, to be filtered down
-      this.openSquares = [F, X, E, Y, N, Z]
-      this.whereToGo = [] // empty array to be filled with available directions
-      this.scatterStatus = 'Y'
+      this.directionArray = [1, -1, 28, -28, 27, -27], // array of possible directions, to be filtered down on each tick
+      this.openSquares = [F, X, E, Y, N, Z] // available tiles on grid
+      this.whereToGo = [] // empty array to be filled with available directions on each tick
+      this.scatterStatus = 'Y' // ghosts set to initially be in scatter mode
       this.chaseStatus = 'N'
       this.frightenedStatus = 'N'
       this.frightenedTime = 0
@@ -254,7 +252,7 @@ function init() {
           this.currentDirection = -28
         }
       } else {
-        this.currentDirection = 0
+        this.currentDirection = 0 // if ghost has been captured then it must not move until its capture time is finished
       }
       if (this.currentIndex === 392) { // if ghost is crossing tunnel in the wall, make sure it continues correctly
         switch (this.currentDirection) {
@@ -276,14 +274,12 @@ function init() {
         }
       }
     }
-    standardTiles () {
-      // Rules for normal tiles, nextAlong is the next position the ghost would be in if it follows same direction
-      const nextAlong = this.currentIndex + this.currentDirection
+    standardTiles () { // rules for normal tiles
+      const nextAlong = this.currentIndex + this.currentDirection // nextAlong is the next position the ghost would be in if it follows same direction
       this.directionArray = [1, -1, 28, -28]
-      this.whereToGo = []
-      // If there is no wall in same direction the ghost is already going, then remove opposite direction from options
+      this.whereToGo = [] // empty array to be filled with directions of where ghost could go next
       this.openSquares = [F, X, E, Y, N, Z]
-      if (openSquares.includes(wallsArray[nextAlong])) {
+      if (openSquares.includes(wallsArray[nextAlong])) { // if there is no wall in same direction the ghost is already going, then remove opposite direction from options
         this.directionArray = this.directionArray.filter(eachDirection => eachDirection !== ((-1) * (this.currentDirection)))
       }
       for (const eachDirection of this.directionArray) { // loop through all options left of where ghost can go
@@ -293,7 +289,7 @@ function init() {
         }
       }
     }
-    redSmartMove () {
+    redSmartMove () { // from each direction available, get distance between potential next position and PacMan position
       const smartDirectionsArray = []
       for (const eachDirection of this.whereToGo) {
         const potentialSmartPos = this.currentIndex + eachDirection
@@ -305,7 +301,7 @@ function init() {
         smartDirectionsArray.push(potentialDistance)
       }
       let lowest = 0
-      for (let i = 0; i < smartDirectionsArray.length; i++) {
+      for (let i = 0; i < smartDirectionsArray.length; i++) { // choose shortest distance
         if (smartDirectionsArray[i] < smartDirectionsArray[lowest]) {
           lowest = i
         }
@@ -314,11 +310,11 @@ function init() {
       this.whereToGo = []
       this.whereToGo.push(shortestDirection)
     }
-    blueSmartMove () {
-      const smartDirectionsArray = []
+    blueSmartMove () { // same as redSmartMove but ghost looks at position 2 tiles ahead of PacMan,
+      const smartDirectionsArray = [] // ghost then draws line from red ghost to this position, doubles it and aims for there
       const redToTarget1RowDifference = redGhost.currentRow - pacMan.targetRowBlue
       const redToTarget1ColumnDifference = redGhost.currentColumn - pacMan.targetColumnBlue
-      const target2Row = redGhost.currentRow - (redToTarget1RowDifference * 2)
+      const target2Row = redGhost.currentRow - (redToTarget1RowDifference * 2) 
       const target2Column = redGhost.currentColumn - (redToTarget1ColumnDifference * 2)
       for (const eachDirection of this.whereToGo) {
         const potentialSmartPos = this.currentIndex + eachDirection
@@ -339,17 +335,17 @@ function init() {
       this.whereToGo = []
       this.whereToGo.push(shortestDirection)
     }
-    orangeSmartMove () {
+    orangeSmartMove () { // same as redSmartMove when more than 8 tiles away from PacmMan
       const currentRowDifference = this.currentRow - pacMan.currentRow
       const currentColumnDifference = this.currentColumn - pacMan.currentColumn
       const currentDistance = Math.sqrt((currentRowDifference ** 2) + (currentColumnDifference ** 2))
       if (currentDistance > 8) {
         this.redSmartMove()
       } else {
-        this.scatter()
+        this.scatter() // at 8 or less tiles away from PacMan, ghost scatters
       }
     }
-    pinkSmartMove () {
+    pinkSmartMove () { // same as redSmartMove but ghost aims for position 4 tiles ahead of PacMan
       const smartDirectionsArray = []
       for (const eachDirection of this.whereToGo) {
         const potentialSmartPos = this.currentIndex + eachDirection
@@ -370,24 +366,24 @@ function init() {
       this.whereToGo = []
       this.whereToGo.push(shortestDirection)
     }
-    chooseDirection () {
+    chooseDirection () { // if ghost is in frightened mode, ghost chooses random direction from whereToGo array
       const randomNumber = Math.floor(Math.random() * this.whereToGo.length)
-      this.currentDirection = this.whereToGo[randomNumber] // choose direction from array based off random number
+      this.currentDirection = this.whereToGo[randomNumber]
     }
     updateGrid () {
       // update next ghost position by adding direction to current position
       this.currentIndex = this.currentIndex + this.currentDirection
-
       // store previous position, useful for checkDeath and checkGhostCapture
       this.previousIndex = this.currentIndex - this.currentDirection
       
+      // update classes on the grid to show the ghost moving
       squares.forEach(square => square.classList.remove(this.name))
       squares[this.previousIndex].classList.remove('ghost')
       squares[this.currentIndex].classList.add(this.name)
       squares[this.currentIndex].classList.add('ghost')
       this.characterAnimation()
     }
-    characterAnimation () {
+    characterAnimation () { // add class stating which direction any of the characters are moving so that CSS can apply appropriate styling and animation (the ghosts' eyes and PacMan's chomp)
       squares[this.previousIndex].classList.remove('left')
       squares[this.previousIndex].classList.remove('up')
       squares[this.previousIndex].classList.remove('right')
@@ -413,23 +409,23 @@ function init() {
           break
       }
     }
-    storeCurrentCoordinates (position) {
+    storeCurrentCoordinates (position) { // used for ghosts to decide which direction to take
       this.currentRow = Math.ceil((position + 1) / width)
       this.currentColumn = ((position + 1) % width) === 0 ? width : ((position + 1) % width)
     }
-    storeScatterTarget () {
+    storeScatterTarget () { // converting each ghost's target index position into row and column coordinates for scatter mode
       this.scatterRow = Math.ceil((this.scatterTargetIndex + 1) / width)
       this.scatterColumn = ((this.scatterTargetIndex + 1) % width) === 0 ? width : ((this.scatterTargetIndex + 1) % width)
     }
     scatter () {
       if (this.scatterStatus === 'Y') {
-        this.whereToGo = []
+        this.whereToGo = [] // start with empty array of where ghost might go
         if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
           this.specialTiles()
         } else {
           this.standardTiles()
           this.storeScatterTarget()
-
+          // from the possible directions each ghost can go, evaluate which move takes the ghost closest to its scatter target tile at that moment. This will result in each ghost patrolling one corner of the grid
           const smartDirectionsArray = []
           for (const eachDirection of this.whereToGo) {
             const potentialSmartPos = this.currentIndex + eachDirection
@@ -446,13 +442,13 @@ function init() {
               lowest = i
             }
           }
-          const shortestDirection = this.whereToGo[lowest]
+          const shortestDirection = this.whereToGo[lowest] // choose the shortest direction towards scatter target
           this.whereToGo = []
           this.whereToGo.push(shortestDirection)
 
           this.chooseDirection()
         }
-        this.updateGrid()
+        this.updateGrid() // move ghost along through CSS class change
         this.storeCurrentCoordinates(this.currentIndex)
       }
     }
@@ -479,7 +475,7 @@ function init() {
     }
     frightened() {
       if (this.frightenedStatus === 'Y') {
-        updateSpeeds(2)
+        updateSpeeds(2) // ghosts move twice as slowly
         this.chaseStatus = 'N'
         this.scatterStatus = 'N'
         if (wallsArray[this.currentIndex] === 'R' || wallsArray[this.currentIndex] === 'L' || wallsArray[this.currentIndex] === 'U' || wallsArray[this.currentIndex] === 'D' || this.currentIndex === 392 || this.currentIndex === 419) {
@@ -496,10 +492,10 @@ function init() {
 
         this.frightenedTime++
 
-        if (this.frightenedTime > ((4 / 3) * (14 - level))) {
+        if (this.frightenedTime > ((4 / 3) * (14 - level))) { // frightened mode lasts around 7 seconds and gets shorter with each level
           for (const eachGhost of ghostArray) {
             if (eachGhost.frightenedStatus === 'Y' && eachGhost.captureStatus === 'N') {
-              if (this.frightenedTime % 2 === 0) {
+              if (this.frightenedTime % 2 === 0) { // ghosts flash blue and white in frightened mode
                 squares[eachGhost.previousIndex].classList.remove('ghost-flash')
                 squares[eachGhost.currentIndex].classList.add('ghost-flash')
               } else {
@@ -509,8 +505,8 @@ function init() {
           }
         }
 
-        if (this.frightenedTime > (2 * (14 - level))) {
-          updateSpeeds(1)
+        if (this.frightenedTime > (2 * (14 - level))) { // frightened mode finishing
+          updateSpeeds(1) // ghosts return to normal speed
           this.frightenedStatus = 'N'
           this.frightenedTime = 0
           squares.forEach(square => square.classList.remove('frightened'))
@@ -525,16 +521,16 @@ function init() {
           playSound(audioLinks['eatGhost'])
 
           this.captureStatus = 'Y'
-          const ghostCaptureScore = (200 * (Math.pow(2, ghostsInPenArray.length)))
+          const ghostCaptureScore = (200 * (Math.pow(2, ghostsInPenArray.length))) // score for capturing first ghost in capture mode is 200, next ghost is 400, next is 800, final one would be 1600
           score += ghostCaptureScore
-          ghostsInPenArray.push(this.name)
+          ghostsInPenArray.push(this.name) // moves ghosts in to the pen
           squares[this.currentIndex].classList.remove('ghost')
           squares[this.previousIndex].classList.remove('frightened')
           squares[this.currentIndex].classList.remove('frightened')
 
           this.captureIndex = this.previousIndex
           
-          switch (ghostCaptureScore) {
+          switch (ghostCaptureScore) { // flashes up with the capture score for each ghost you capture
             case 200:
               squares[this.captureIndex].classList.add('capture-score1')
               break
@@ -548,7 +544,7 @@ function init() {
               squares[this.captureIndex].classList.add('capture-score4')
               break
           }          
-          removeCaptureScoreTimeout()
+          removeCaptureScoreTimeout() // capture score flashes up for 800ms, then disappears
         }
       }
     }
@@ -561,11 +557,11 @@ function init() {
         squares[this.currentIndex].classList.add('ghost')
         squares[this.currentIndex].classList.add('frightened')
         this.captureTime++
-        if (this.captureTime > 1000 * ((13 - level) / 12)) { 
+        if (this.captureTime > 1000 * ((13 - level) / 12)) {  // capture time finishing
           this.captureStatus = 'N'
           this.captureTime = 0
-          squares[this.currentIndex].classList.add('frightened')
-          squares[this.previousIndex].classList.add('frightened')
+          // squares[this.currentIndex].classList.add('frightened') // question
+          // squares[this.previousIndex].classList.add('frightened') // question
         }
       }
     }
@@ -574,8 +570,9 @@ function init() {
   class Player extends Characters {
     constructor(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection, proposedDirection) {
       super(name, startingIndex, startingDirection, previousIndex, currentIndex, currentDirection)
-      this.proposedDirection = proposedDirection
+      this.proposedDirection = proposedDirection // direction pressed by user prior to PacMan's next move
       this.previousDirection = null
+      // target positions for ghosts to chase in chase mode
       this.targetRowPink = null
       this.targetColumnPink = null
       this.targetRowBlue = null
@@ -583,15 +580,15 @@ function init() {
       this.pacManChomping = null
     }
     pacManAnimation () {
-      if (this.currentIndex === this.previousIndex) {
+      if (this.currentIndex === this.previousIndex) { // remove moving and chomping animation when PacMan is stationary
         squares[this.currentIndex].classList.remove('moving')
         squares[this.currentIndex].classList.remove('left')
         squares[this.currentIndex].classList.remove('up')
         squares[this.currentIndex].classList.remove('right')
         squares[this.currentIndex].classList.remove('down')
         squares[this.currentIndex].classList.add('stationary')
-        this.currentDirection = this.previousDirection
-        document.documentElement.style.setProperty('--rotation', playerDirectionObject[this.currentDirection])
+        this.currentDirection = this.previousDirection // ensures PacMan remains facing the direction he was in before stopping
+        document.documentElement.style.setProperty('--rotation', playerDirectionObject[this.currentDirection]) // set the PacMan's rotation in CSS
       } else {
         squares.forEach(square => square.classList.remove('stationary'))
         squares[this.previousIndex].classList.remove('moving')
@@ -601,7 +598,7 @@ function init() {
     automaticMovement () {
       this.previousDirection = this.currentDirection
       
-      switch (this.currentIndex) {
+      switch (this.currentIndex) { // ensures PacMan passes through the tunnels on both sides
         case 392:
           switch (this.currentDirection) {
             case -1:
@@ -635,8 +632,10 @@ function init() {
           }
           break
       }
-      const proposedPos = this.currentIndex + this.proposedDirection
+      const proposedPos = this.currentIndex + this.proposedDirection // proposedDirection is the last direction key pressed
       const predictedPos = this.currentIndex + this.currentDirection
+      
+      // if user hits direction button, check if PacMan can go that way, if he can then let him change direction, if not allow him to automatically continue to move in his current direction, unless there is a wall where he should just stop
       if (openSquares.includes(wallsArray[proposedPos])) {
         this.currentDirection = this.proposedDirection
       } else if (openSquares.includes(wallsArray[predictedPos])) {
@@ -645,7 +644,7 @@ function init() {
         this.currentDirection = 0
       }
 
-      this.currentIndex += this.currentDirection
+      this.currentIndex += this.currentDirection // update current position
 
       this.storeCurrentCoordinates(this.currentIndex)
       this.pinkTargetCoordinates(this.currentIndex, this.currentDirection, 4)
@@ -656,7 +655,7 @@ function init() {
       if (squares[this.currentIndex].classList.contains('food')) {
         squares[this.currentIndex].classList.remove('food')
         score += 10
-        this.chomping = 'Y'
+        this.chomping = 'Y' // for chomping audio
         if (score > highScore) {
           highScore = score
         }
@@ -694,6 +693,7 @@ function init() {
           pacMan.proposedDirection = -width
       }
     }
+
     pinkTargetCoordinates (position, direction, tilesAhead) {
       const targetPosition = position + (tilesAhead * direction)
       this.targetRowPink = Math.ceil((targetPosition + 1) / width)
@@ -714,12 +714,12 @@ function init() {
   const pacMan = new Player('pacman', 658, -1, 659, 658, -1, -1, 0)
   squares[pacMan.currentIndex].classList.add('pacman')
   squares[pacMan.currentIndex].classList.add('stationary') // put pacman in starting position
-  squares[pacMan.currentIndex].classList.add('adjusted')
+  squares[pacMan.currentIndex].classList.add('adjusted') // move PacMan to absolute centre of the grid
   
   const redGhost = new Characters('red', 322, 1, 321, 322, 1, 405, 24)
   squares[redGhost.currentIndex].classList.add('ghost')
   squares[redGhost.currentIndex].classList.add('red')
-  squares[redGhost.currentIndex].classList.add('adjusted')
+  squares[redGhost.currentIndex].classList.add('adjusted') // move ghost to absolute centre of the grid
 
   const blueGhost = new Characters('blue', 404, 1, 403, 404, 1, 404, 866)
   squares[blueGhost.currentIndex].classList.add('ghost')
@@ -728,7 +728,7 @@ function init() {
   const orangeGhost = new Characters('orange', 406, -28, 433, 406, -28, 406, 841)
   squares[orangeGhost.currentIndex].classList.add('ghost')
   squares[orangeGhost.currentIndex].classList.add('orange')
-  squares[orangeGhost.currentIndex].classList.add('adjusted')
+  squares[orangeGhost.currentIndex].classList.add('adjusted') // move ghost to absolute centre of the grid
 
   const pinkGhost = new Characters('pink', 407, -1, 408, 407, -1, 407, 3)
   squares[pinkGhost.currentIndex].classList.add('ghost')
@@ -744,11 +744,11 @@ function init() {
   }
 
   function ghostMovement () {
-    const chaseDuration = 18 + (level * 2)
-    const scatterDuration = Math.max(8 - level, 0)
+    const chaseDuration = 18 + (level * 2) // time spent in chase mode increases with each level
+    const scatterDuration = Math.max(8 - level, 0) // time spent scatter mode decreases with each level down to 0s
     if ((ghostArray.filter(eachGhost => eachGhost.frightenedStatus === 'Y')).length === 0) {
-      ghostTime += (ghostSpeed / 1000)
-      if (((ghostTime * (1000 / ghostSpeed)) % (chaseDuration * (1000 / ghostSpeed))) < (scatterDuration * (1000 / ghostSpeed))) {
+      ghostTime += (ghostSpeed / 1000) // if no ghosts are in frightened mode
+      if (((ghostTime * (1000 / ghostSpeed)) % (chaseDuration * (1000 / ghostSpeed))) < (scatterDuration * (1000 / ghostSpeed))) {  // toggle ghosts between scatter mode and chase mode based on game time and scatter duration
         for (const eachGhost of ghostArray) {
           eachGhost.scatterStatus = 'Y'
           eachGhost.chaseStatus = 'N'
@@ -768,13 +768,13 @@ function init() {
 
   function checkDeath () {
     for (const eachGhost of ghostArray) {
-      if ((eachGhost.chaseStatus === 'Y' || eachGhost.scatterStatus === 'Y') && ((pacMan.currentIndex === eachGhost.currentIndex) || ((pacMan.currentIndex === eachGhost.previousIndex) && (pacMan.previousIndex === eachGhost.currentIndex)))) {
+      if ((eachGhost.chaseStatus === 'Y' || eachGhost.scatterStatus === 'Y') && ((pacMan.currentIndex === eachGhost.currentIndex) || ((pacMan.currentIndex === eachGhost.previousIndex) && (pacMan.previousIndex === eachGhost.currentIndex)))) { // if ghost isn't in frightened mode and shares the same position as PacMan
 
         playSound(audioLinks['death'])
         pauseSirenSound()
         pauseChompSound()
         
-        for (const eachGhost of ghostArray) {
+        for (const eachGhost of ghostArray) { // remove ghost from position it ate PacMan
           squares[eachGhost.currentIndex].classList.remove('left')
           squares[eachGhost.currentIndex].classList.remove('right')
           squares[eachGhost.currentIndex].classList.remove('down')
@@ -794,12 +794,14 @@ function init() {
         squares.forEach(square => square.classList.remove('pacman'))
         squares.forEach(square => square.classList.remove('moving'))
         this.currentDirection = this.previousDirection
-        document.documentElement.style.setProperty('--rotation', playerDirectionObject[pacMan.currentDirection])
+        document.documentElement.style.setProperty('--rotation', playerDirectionObject[pacMan.currentDirection]) // reset CSS rotation for PacMan
         squares[pacMan.previousIndex].classList.add('pacman')
         squares[pacMan.previousIndex].classList.add('stationary')
-        squares[pacMan.previousIndex].classList.add('death')
+        squares[pacMan.previousIndex].classList.add('death') // play CSS death animation
 
         window.removeEventListener('keydown', pacMan.handleKeyDown)
+
+        // clear all in-play timers
         clearInterval(timerId2)
         clearInterval(timerId3)
         clearInterval(timerId4)
@@ -826,7 +828,7 @@ function init() {
           squares.forEach(square => square.classList.remove('pacman'))
           squares.forEach(square => square.classList.remove('stationary'))
           squares.forEach(square => square.classList.remove('death'))
-        }, 900)
+        }, 900) // remove PacMan from position of death after 900ms, to allow animation
 
         setTimeout(() => {
           squares.forEach(square => square.classList.remove('red'))
@@ -994,7 +996,7 @@ function init() {
       for (const eachGhost of ghostArray) {
         if (eachGhost.frightenedTime === 0) {
           eachGhost.frightenedStatus = 'Y'
-        } else if ((eachGhost.frightenedTime > 0) && (eachGhost.frightenedTime <= (2 * (14 - level))) && (eachGhost.captureStatus === 'N')) {
+        } else if ((eachGhost.frightenedTime > 0) && (eachGhost.frightenedTime <= (2 * (14 - level))) && (eachGhost.captureStatus === 'N')) { // reset frightenedTime for ghosts that are already in frightened mode but not captured. If the ghost is currently captured, it does not become frightened again.
           eachGhost.frightenedTime = 0
         }
       }
@@ -1021,7 +1023,7 @@ function init() {
     }
   }
 
-  function controlGhostsInPenArray () {
+  function controlGhostsInPenArray () { // remove ghost from ghostsInPenArray when it's capture status returns to 'N'
     for (const eachGhost of ghostArray) {
       if (ghostsInPenArray.includes(eachGhost.name) && eachGhost.captureStatus === 'N') {
         ghostsInPenArray.splice(ghostsInPenArray.indexOf(eachGhost.name), 1)
@@ -1093,12 +1095,14 @@ function init() {
       countDownTime--
     } else if (countDownTime === 0) {
       countdownDisplay.innerHTML = 'go!'
+      // timers for player and ghost movement on each execution of the callback function
       playerMoveTimer()
       ghostMovementTimer()
       playSirenSound()
       squares[pacMan.currentIndex].classList.remove('adjusted')
       squares[orangeGhost.currentIndex].classList.remove('adjusted')
       squares[redGhost.currentIndex].classList.remove('adjusted')
+      // timers below run every 0s to constantly check for events
       checkDeathTimer()
       checkLevelUpTimer()
       checkEnergizerTimer()
@@ -1141,7 +1145,7 @@ function init() {
     timerId6 = setInterval(checkEnergizer)
   }
 
-  function checkGhostFrightenedTimer () {
+  function checkGhostFrightenedTimer () { // this function cannot run every 0s like the others because the frightened time is increased with each execution
     timerId7 = setInterval(checkGhostsFrightenedAll, ghostSpeed * 2)
   }
 
@@ -1149,7 +1153,7 @@ function init() {
     timerId8 = setInterval(checkGhostCaptureAll)
   }
 
-  function penTimer () {
+  function penTimer () { // this function cannot run every 0s like the others because the capture time is increased with each execution
     timerId9 = setInterval(keepGhostInPenAll, 1)
   }
 
@@ -1161,7 +1165,7 @@ function init() {
     timerId11 = setInterval(controlGhostsInPenArray)
   }
 
-  function checkPacManChompTimer () {
+  function checkPacManChompTimer () { // checks if PacMan is chomping and plays chomp sound if he is
     timerId12 = setInterval(checkPacManChomp, 700)
   }
 
@@ -1171,7 +1175,7 @@ function init() {
 
   // EVENT HANDLERS
 
-  window.addEventListener('keydown', spaceDown)
+  window.addEventListener('keydown', spaceDown) // spaceDown listener is only active at the start of a game or after restarting
 
   function spaceDown (e) {
     if (e.keyCode === 32) {
