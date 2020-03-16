@@ -103,7 +103,7 @@ The ghosts are always in one of three possible modes:
 
 ### Future Features
 
-In general I am very pleased with the game I built given the timescales and the fact that this was the first project of the course. That said, with some more time, I would like to work on the following:
+In general, I am very pleased with the game I built given the timescales and the fact that this was the first project of the course. That said, with some more time, I would like to work on the following:
 
 * Re-factor some of my code as the Characters class is lengthy. I think there may be scope for amalgamating each of the individual ghost chase modes into one function.
 * Adding fruits to appear in the maze at certain times, that score extra bonus points if Pac-Man eats them before they disappear.
