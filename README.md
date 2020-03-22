@@ -12,7 +12,7 @@ This is my first project of the General Assembly Software Engineering Immersive 
 
 The game is deployed using GitHub Pages and can be found [here](https://georgeanthony33.github.io/sei-project-01/).
 
-## Technology Use
+## Technologies Used
 
 * HTML5
 * CSS3
